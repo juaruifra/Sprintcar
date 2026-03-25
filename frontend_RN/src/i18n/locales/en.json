@@ -165,6 +165,7 @@
     "reservationIdLabel": "Reservation",
     "vehicleIdLabel": "Vehicle",
     "userIdLabel": "User",
+    "unknownUser": "Unknown user",
     "statusLabel": "Status",
     "profileIncompleteMessage": "You cannot reserve until you complete your DNI/NIE in your profile",
     "quick": {

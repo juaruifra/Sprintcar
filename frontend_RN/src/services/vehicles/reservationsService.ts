@@ -10,6 +10,13 @@ export type ReservationVehicleSummary = {
   isActive: boolean;
 };
 
+export type ReservationUserSummary = {
+  id: number;
+  name: string | null;
+  lastName: string | null;
+  email: string;
+};
+
 export type Reservation = {
   id: number;
   userId: number;
@@ -17,6 +24,7 @@ export type Reservation = {
   startDate: string;
   endDate: string;
   status: 'CREADA' | 'CANCELADA';
+  user: ReservationUserSummary | null;
   vehicle: ReservationVehicleSummary | null;
 };
 

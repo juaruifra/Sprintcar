@@ -96,6 +96,7 @@ export class ReservationsService {
   private mapReservationResponse(
     reservation: ReservationEntity,
     vehicle?: VehicleEntity | null,
+    user?: UserEntity | null,
   ) {
     // Mapeamos la entidad de BD a un objeto limpio para devolver al frontend.
     // Convertimos las fechas a formato DD/MM/YYYY para consistencia.
@@ -106,6 +107,14 @@ export class ReservationsService {
       startDate: this.formatBusinessDate(reservation.startDate),
       endDate: this.formatBusinessDate(reservation.endDate),
       status: reservation.status,
+      user: user
+        ? {
+            id: user.id,
+            name: user.name,
+            lastName: user.lastName,
+            email: user.email,
+          }
+        : null,
       vehicle: vehicle
         ? {
             id: vehicle.id,
@@ -231,7 +240,7 @@ export class ReservationsService {
     // La disponibilidad operativa se gestiona manualmente por admin.
 
     // Paso 10: Devolvemos la reserva con resumen del vehículo reservado.
-    return this.mapReservationResponse(savedReservation, vehicle);
+    return this.mapReservationResponse(savedReservation, vehicle, currentUser);
   }
 
   async listMy(request: AuthRequest) {
@@ -242,15 +251,25 @@ export class ReservationsService {
       order: { startDate: 'DESC', endDate: 'DESC', id: 'DESC' },
     });
 
-    const vehicleIds = Array.from(new Set(reservations.map((reservation) => reservation.vehicleId)));
+    const vehicleIds = Array.from(new Set(reservations.map((reservation) => Number(reservation.vehicleId))));
     const vehicles = vehicleIds.length
       ? await this.vehiclesRepository.find({ where: { id: In(vehicleIds) } })
       : [];
-    const vehicleMap = new Map(vehicles.map((vehicle) => [vehicle.id, vehicle]));
+    const vehicleMap = new Map(vehicles.map((vehicle) => [Number(vehicle.id), vehicle]));
+
+    const userIds = Array.from(new Set(reservations.map((reservation) => Number(reservation.userId))));
+    const users = userIds.length
+      ? await this.usersRepository.find({ where: { id: In(userIds) } })
+      : [];
+    const userMap = new Map(users.map((user) => [Number(user.id), user]));
 
     // Convertimos cada reserva al formato que entiende el frontend.
     return reservations.map((reservation) =>
-      this.mapReservationResponse(reservation, vehicleMap.get(reservation.vehicleId) ?? null),
+      this.mapReservationResponse(
+        reservation,
+        vehicleMap.get(Number(reservation.vehicleId)) ?? null,
+        userMap.get(Number(reservation.userId)) ?? null,
+      ),
     );
   }
 
@@ -262,14 +281,24 @@ export class ReservationsService {
       order: { startDate: 'DESC', endDate: 'DESC', id: 'DESC' },
     });
 
-    const vehicleIds = Array.from(new Set(reservations.map((reservation) => reservation.vehicleId)));
+    const vehicleIds = Array.from(new Set(reservations.map((reservation) => Number(reservation.vehicleId))));
     const vehicles = vehicleIds.length
       ? await this.vehiclesRepository.find({ where: { id: In(vehicleIds) } })
       : [];
-    const vehicleMap = new Map(vehicles.map((vehicle) => [vehicle.id, vehicle]));
+    const vehicleMap = new Map(vehicles.map((vehicle) => [Number(vehicle.id), vehicle]));
+
+    const userIds = Array.from(new Set(reservations.map((reservation) => Number(reservation.userId))));
+    const users = userIds.length
+      ? await this.usersRepository.find({ where: { id: In(userIds) } })
+      : [];
+    const userMap = new Map(users.map((user) => [Number(user.id), user]));
 
     return reservations.map((reservation) =>
-      this.mapReservationResponse(reservation, vehicleMap.get(reservation.vehicleId) ?? null),
+      this.mapReservationResponse(
+        reservation,
+        vehicleMap.get(Number(reservation.vehicleId)) ?? null,
+        userMap.get(Number(reservation.userId)) ?? null,
+      ),
     );
   }
 
@@ -310,7 +339,11 @@ export class ReservationsService {
       where: { id: reservation.vehicleId },
     });
 
+    const user = await this.usersRepository.findOne({
+      where: { id: reservation.userId },
+    });
+
     // Devolvemos la reserva cancelada con resumen de vehículo.
-    return this.mapReservationResponse(savedReservation, vehicle ?? null);
+    return this.mapReservationResponse(savedReservation, vehicle ?? null, user ?? null);
   }
 }

@@ -26,6 +26,18 @@ export default function ReservasAdminScreen() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'CREADA' | 'CANCELADA'>('all');
   const [search, setSearch] = useState('');
 
+  const getUserDisplayName = (item: (typeof reservations)[number]) => {
+    const firstName = item.user?.name?.trim() ?? '';
+    const lastName = item.user?.lastName?.trim() ?? '';
+    const fullName = `${firstName} ${lastName}`.trim();
+
+    if (fullName) {
+      return fullName;
+    }
+
+    return item.user?.email ?? t('reservations.unknownUser');
+  };
+
   const reservations = useMemo(() => {
     const base = [...(reservationsQuery.data ?? [])];
     const normalizedSearch = search.trim().toLowerCase();
@@ -36,7 +48,7 @@ export default function ReservasAdminScreen() {
 
       if (!normalizedSearch) return true;
 
-      const text = `${item.id} ${item.userId} ${item.vehicleId} ${item.startDate} ${item.endDate} ${item.vehicle?.brand ?? ''} ${item.vehicle?.model ?? ''} ${item.vehicle?.licensePlate ?? ''}`.toLowerCase();
+      const text = `${item.id} ${item.user?.name ?? ''} ${item.user?.lastName ?? ''} ${item.user?.email ?? ''} ${item.startDate} ${item.endDate} ${item.vehicle?.brand ?? ''} ${item.vehicle?.model ?? ''} ${item.vehicle?.licensePlate ?? ''}`.toLowerCase();
       return text.includes(normalizedSearch);
     });
   }, [reservationsQuery.data, search, statusFilter]);
@@ -122,8 +134,8 @@ export default function ReservasAdminScreen() {
               <Card.Title
                 title={`${t('reservations.reservationIdLabel')} #${item.id}`}
                 subtitle={item.vehicle
-                  ? `${t('reservations.userIdLabel')} #${item.userId} · ${item.vehicle.brand} ${item.vehicle.model}`
-                  : `${t('reservations.userIdLabel')} #${item.userId} · ${t('reservations.vehicleIdLabel')} #${item.vehicleId}`}
+                  ? `${getUserDisplayName(item)} · ${item.vehicle.brand} ${item.vehicle.model}`
+                  : `${getUserDisplayName(item)} · ${t('reservations.vehicleIdLabel')} #${item.vehicleId}`}
                 left={(props) => (
                   <Avatar.Icon
                     {...props}
