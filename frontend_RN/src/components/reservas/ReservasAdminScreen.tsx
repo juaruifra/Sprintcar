@@ -1,11 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 import { FlatList, View } from 'react-native';
 import {
   ActivityIndicator,
   Avatar,
   Button,
   Card,
-  Chip,
   Searchbar,
   SegmentedButtons,
   Text,
@@ -13,52 +12,24 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import AppHeader from '../layout/AppHeader';
-import { useAdminReservations } from '../../hooks/reservas/useAdminReservations';
-import { useCancelReservation } from '../../hooks/reservas/useCancelReservation';
-import { useSnackbar } from '../../hooks/useSnackbar';
+import { useReservasAdminScreen } from '../../hooks/reservas/useReservasAdminScreen';
+import ReservationAdminCard from './cards/ReservationAdminCard';
 
 export default function ReservasAdminScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
-  const reservationsQuery = useAdminReservations();
-  const cancelReservationMutation = useCancelReservation();
-  const { showSuccess, showError, SnackbarUI } = useSnackbar();
-  const [statusFilter, setStatusFilter] = useState<'all' | 'CREADA' | 'CANCELADA'>('all');
-  const [search, setSearch] = useState('');
-
-  const getUserDisplayName = (item: (typeof reservations)[number]) => {
-    const firstName = item.user?.name?.trim() ?? '';
-    const lastName = item.user?.lastName?.trim() ?? '';
-    const fullName = `${firstName} ${lastName}`.trim();
-
-    if (fullName) {
-      return fullName;
-    }
-
-    return item.user?.email ?? t('reservations.unknownUser');
-  };
-
-  const reservations = useMemo(() => {
-    const base = [...(reservationsQuery.data ?? [])];
-    const normalizedSearch = search.trim().toLowerCase();
-
-    return base.filter((item) => {
-      const statusMatch = statusFilter === 'all' ? true : item.status === statusFilter;
-      if (!statusMatch) return false;
-
-      if (!normalizedSearch) return true;
-
-      const text = `${item.id} ${item.user?.name ?? ''} ${item.user?.lastName ?? ''} ${item.user?.email ?? ''} ${item.startDate} ${item.endDate} ${item.vehicle?.brand ?? ''} ${item.vehicle?.model ?? ''} ${item.vehicle?.licensePlate ?? ''}`.toLowerCase();
-      return text.includes(normalizedSearch);
-    });
-  }, [reservationsQuery.data, search, statusFilter]);
-
-  const handleCancelReservation = (reservationId: number) => {
-    cancelReservationMutation.mutate(reservationId, {
-      onSuccess: () => showSuccess(t('reservations.cancelSuccess')),
-      onError: (error) => showError(error instanceof Error ? error.message : t('common.unexpectedError')),
-    });
-  };
+  const {
+    reservationsQuery,
+    cancelReservationMutation,
+    SnackbarUI,
+    statusFilter,
+    setStatusFilter,
+    search,
+    setSearch,
+    reservations,
+    getUserDisplayName,
+    handleCancelReservation,
+  } = useReservasAdminScreen();
 
   if (reservationsQuery.isLoading) {
     return (
@@ -126,54 +97,14 @@ export default function ReservasAdminScreen() {
             </Card.Content>
           </Card>
         }
-        renderItem={({ item }) => {
-          const isCancelled = item.status === 'CANCELADA';
-
-          return (
-            <Card style={{ borderRadius: 16 }}>
-              <Card.Title
-                title={`${t('reservations.reservationIdLabel')} #${item.id}`}
-                subtitle={item.vehicle
-                  ? `${getUserDisplayName(item)} · ${item.vehicle.brand} ${item.vehicle.model}`
-                  : `${getUserDisplayName(item)} · ${t('reservations.vehicleIdLabel')} #${item.vehicleId}`}
-                left={(props) => (
-                  <Avatar.Icon
-                    {...props}
-                    icon={isCancelled ? 'calendar-remove' : 'calendar-check'}
-                    style={{ backgroundColor: isCancelled ? theme.colors.errorContainer : theme.colors.primaryContainer }}
-                  />
-                )}
-              />
-              <Card.Content>
-                <Text>{`${item.startDate} → ${item.endDate}`}</Text>
-
-                <Text style={{ marginTop: 6 }}>
-                  {t('reservations.licensePlateLabel')}: {item.vehicle?.licensePlate ?? `#${item.vehicleId}`}
-                </Text>
-
-                {item.vehicle ? (
-                  <Text style={{ marginTop: 4 }}>
-                    {t('reservations.pricePerDayLabel')}: {item.vehicle.pricePerDay.toFixed(2)} €
-                  </Text>
-                ) : null}
-
-                <Chip
-                  icon={isCancelled ? 'close-circle' : 'check-circle'}
-                  style={{ marginVertical: 10, alignSelf: 'flex-start' }}
-                >
-                  {t('reservations.statusLabel')}: {isCancelled ? t('reservations.status.cancelled') : t('reservations.status.created')}
-                </Chip>
-                <Button
-                  mode="outlined"
-                  onPress={() => handleCancelReservation(item.id)}
-                  disabled={isCancelled || cancelReservationMutation.isPending}
-                >
-                  {t('reservations.cancelAction')}
-                </Button>
-              </Card.Content>
-            </Card>
-          );
-        }}
+        renderItem={({ item }) => (
+          <ReservationAdminCard
+            reservation={item}
+            userDisplayName={getUserDisplayName(item)}
+            isCancelling={cancelReservationMutation.isPending}
+            onCancel={handleCancelReservation}
+          />
+        )}
       />
 
       <SnackbarUI />
