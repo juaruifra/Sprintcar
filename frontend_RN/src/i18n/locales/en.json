@@ -1,0 +1,257 @@
+{
+  "tabs": {
+    "home": "Home",
+    "orders": "Orders",
+    "clients": "Clients",
+    "inventory": "Inventory",
+    "vehicles": "Vehicles",
+    "reservations": "Reservations"
+  },
+  "preferences": {
+    "title": "Preferences",
+    "theme": {
+      "title": "App Theme",
+      "darkMode": "Dark mode",
+      "helper": "Enable or disable the app's dark theme"
+    },
+    "language": {
+      "title": "Language",
+      "spanish": "Spanish",
+      "english": "English"
+    },
+    "biometric": {
+      "title": "Security",
+      "enable": "Biometric unlock",
+      "helper": "Use your fingerprint or face to access the app"
+    }
+  },
+  "biometric": {
+    "confirmToEnable": "Confirm your identity to enable",
+    "locked": {
+      "title": "App locked",
+      "subtitle": "Use your fingerprint or face to unlock",
+      "button": "Unlock"
+    }
+  },
+  "home": {
+    "welcome": "Welcome,",
+    "roleAdmin": "Administrator",
+    "roleUser": "User",
+    "subtitle": "From here you can access the different modules of the application and manage your daily work.",
+    "profileIncompleteTitle": "Incomplete profile",
+    "profileIncompleteMessage": "To reserve vehicles, you must complete your DNI/NIE in your profile.",
+    "completeProfileAction": "Complete profile",
+    "profile": "Profile",
+    "profileDesc": "View and edit your data",
+    "preferences": "Preferences",
+    "preferencesDesc": "App theme and language",
+    "clients": "Clients",
+    "clientsDesc": "Client management"
+  },
+  "header": {
+    "preferences": "Preferences",
+    "profile": "Profile",
+    "changePassword": "Change password",
+    "logout": "Sign out"
+  },
+  "clients": {
+    "searchPlaceholder": "Search clients...",
+    "deleteTitle": "Delete client",
+    "deleteMessage": "Are you sure you want to delete {{name}}?",
+    "loadError": "Error loading clients:",
+    "notFound": "Client not found",
+    "noResults": "No clients found",
+    "noEmail": "No email",
+    "noPhone": "No phone",
+    "active": "Active",
+    "inactive": "Inactive",
+    "dataTab": "Client Data",
+    "create": "Create client",
+    "edit": "Edit client",
+    "delete": "Delete client",
+    "errorDeleteOrders": "Cannot delete client because it has associated orders",
+    "noOrders": "This client has no orders",
+    "form": {
+      "name": "Name",
+      "nifCif": "Tax ID",
+      "email": "Email",
+      "phone": "Phone",
+      "notes": "Notes",
+      "status": "Status"
+    }
+  },
+  "profile": {
+    "title": "User Profile",
+    "role": "Role:",
+    "deleteAvatar": "Delete avatar",
+    "saveChanges": "Save changes",
+    "nameUpdated": "Profile updated successfully",
+    "nameUpdateError": "Error updating profile",
+    "form": {
+      "lastName": "Last name",
+      "phone": "Phone",
+      "birthDate": "Birth date (DD/MM/YYYY)",
+      "documentId": "Document (ID)"
+    }
+  },
+  "password": {
+    "title": "Change Password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "changeButton": "Change password",
+    "success": "Password changed successfully",
+    "error": "Error changing password"
+  },
+  "orders": {
+    "subtitle": "From here you can manage orders"
+  },
+  "inventory": {
+    "subtitle": "From here you can manage inventory"
+  },
+  "vehicles": {
+    "searchPlaceholder": "Search vehicles...",
+    "create": "Create vehicle",
+    "edit": "Edit vehicle",
+    "deactivate": "Deactivate",
+    "deactivateTitle": "Deactivate vehicle",
+    "deactivateMessage": "Are you sure you want to deactivate {{plate}}?",
+    "empty": "No vehicles found",
+    "status": {
+      "available": "Available",
+      "unavailable": "Unavailable"
+    },
+    "form": {
+      "licensePlate": "License plate",
+      "brand": "Brand",
+      "model": "Model",
+      "year": "Year",
+      "category": "Category",
+      "pricePerDay": "Price per day",
+      "mileage": "Mileage",
+      "color": "Color",
+      "fuel": "Fuel",
+      "status": "Status"
+    }
+  },
+  "reservations": {
+    "createTitle": "New reservation",
+    "historyTitle": "Reservation history",
+    "historySubtitle": "Your reservations sorted by start date",
+    "adminHistoryTitle": "Global reservation history",
+    "adminHistorySubtitle": "All reservations in the system",
+    "dateRangeTitle": "Date range",
+    "selectVehicleTitle": "Select a vehicle",
+    "searchVehiclePlaceholder": "Search by brand, model or plate",
+    "searchReservationPlaceholder": "Search by reservation, user or vehicle",
+    "sortPriceAsc": "Price ↑",
+    "sortPriceDesc": "Price ↓",
+    "filterAll": "All",
+    "selectedVehicleSummary": "Selected vehicle",
+    "pricePerDayLabel": "Price/day",
+    "licensePlateLabel": "License plate",
+    "startDate": "Start date (DD/MM/YYYY)",
+    "endDate": "End date (DD/MM/YYYY)",
+    "fillDatesFirst": "Fill reservation dates first",
+    "selectVehicle": "Select vehicle",
+    "selectVehicleRequired": "You must select a vehicle",
+    "noVehiclesForRange": "No vehicles available for that date range",
+    "createAction": "Create reservation",
+    "createSuccess": "Reservation created successfully",
+    "cancelAction": "Cancel reservation",
+    "cancelSuccess": "Reservation cancelled successfully",
+    "emptyMine": "You do not have reservations yet",
+    "emptyAdmin": "No reservations found",
+    "reservationIdLabel": "Reservation",
+    "vehicleIdLabel": "Vehicle",
+    "userIdLabel": "User",
+    "statusLabel": "Status",
+    "profileIncompleteMessage": "You cannot reserve until you complete your DNI/NIE in your profile",
+    "quick": {
+      "tomorrow": "Tomorrow",
+      "threeDays": "3 days",
+      "sevenDays": "7 days"
+    },
+    "status": {
+      "created": "Created",
+      "cancelled": "Cancelled"
+    }
+  },
+  "login": {
+    "welcome": "Welcome",
+    "subtitle": "Enter your credentials to continue",
+    "password": "Password",
+    "forgotPassword": "Forgot your password?",
+    "signIn": "Sign In",
+    "orContinueWith": "Or continue with",
+    "noAccount": "Don't have an account?",
+    "register": "Register now",
+    "invalidCredentials": "Invalid email or password"
+  },
+  "register": {
+    "title": "Create account",
+    "subtitle": "Sign up to start using Sprintcar",
+    "submit": "Sign up",
+    "haveAccount": "Already have an account?",
+    "goToLogin": "Sign in"
+  },
+  "validation": {
+    "emailRequired": "Email is required",
+    "emailInvalid": "Invalid email address",
+    "passwordMin": "Password must be at least {{count}} characters",
+    "passwordMax": "Password is too long",
+    "currentPasswordRequired": "Current password is required",
+    "confirmPasswordRequired": "You must confirm the new password",
+    "passwordsMismatch": "Passwords do not match",
+    "nameRequired": "Name is required",
+    "nameMin": "Name must be at least {{count}} characters",
+    "nameMax": "Name is too long",
+    "nifCifInvalid": "Tax ID format is invalid",
+    "phoneInvalid": "Phone number format is invalid",
+    "dateInvalid": "Date format is invalid",
+    "documentMax": "Document is too long",
+    "required": "This field is required",
+    "maxLength": "Text is too long",
+    "yearInvalid": "Invalid year",
+    "priceInvalid": "Invalid price",
+    "mileageInvalid": "Invalid mileage"
+  },
+  "errors": {
+    "userNotAuthenticated": "User not authenticated",
+    "profileLoadError": "Could not load user profile",
+    "currentPasswordWrong": "Current password is incorrect",
+    "passwordChangeError": "Error changing password: {{message}}",
+    "emailAlreadyExists": "An account with this email already exists",
+    "documentIdAlreadyExists": "An account with this DNI/NIE already exists",
+    "invalidSpanishDocumentId": "The document must be a valid DNI or NIE",
+    "invalidDateFormat": "Dates must be in DD/MM/YYYY format",
+    "endDateBeforeStartDate": "End date cannot be before start date",
+    "startDateInPast": "Start date cannot be in the past",
+    "reservationDurationExceeded": "Maximum reservation duration is 60 days",
+    "vehicleAlreadyReserved": "The vehicle has a reservation in that date range",
+    "vehicleNotFound": "The vehicle was not found or is not available",
+    "vehicleNotAvailable": "The vehicle is not available for reservation",
+    "reservationNotFound": "The reservation was not found",
+    "unauthorizedCancelReservation": "You do not have permission to cancel this reservation",
+    "reservationAlreadyCancelled": "The reservation is already cancelled",
+    "adminOnlyAction": "This action is only allowed for administrators",
+    "documentIdRequiredForReservation": "You must complete your DNI/NIE in your profile before reserving",
+    "invalidReservationDateData": "An internal issue was detected with reservation date data"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "accept": "Accept",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "name": "Name",
+    "email": "Email",
+    "unexpectedError": "An unexpected error has occurred",
+    "password": "Password",
+    "retry": "Retry"
+  }
+}

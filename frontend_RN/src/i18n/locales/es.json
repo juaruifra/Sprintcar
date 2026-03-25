@@ -1,0 +1,257 @@
+{
+  "tabs": {
+    "home": "Inicio",
+    "orders": "Pedidos",
+    "clients": "Clientes",
+    "inventory": "Inventario",
+    "vehicles": "Vehículos",
+    "reservations": "Reservas"
+  },
+  "preferences": {
+    "title": "Preferencias",
+    "theme": {
+      "title": "Tema de la aplicación",
+      "darkMode": "Modo oscuro",
+      "helper": "Activa o desactiva el tema oscuro de la app"
+    },
+    "language": {
+      "title": "Idioma",
+      "spanish": "Español",
+      "english": "Inglés"
+    },
+    "biometric": {
+      "title": "Seguridad",
+      "enable": "Desbloqueo biométrico",
+      "helper": "Usa tu huella o rostro para acceder a la app"
+    }
+  },
+  "biometric": {
+    "confirmToEnable": "Confirma tu identidad para activar",
+    "locked": {
+      "title": "App bloqueada",
+      "subtitle": "Usa tu huella o rostro para desbloquear",
+      "button": "Desbloquear"
+    }
+  },
+  "home": {
+    "welcome": "Bienvenido,",
+    "roleAdmin": "Administrador",
+    "roleUser": "Usuario",
+    "subtitle": "Desde aquí puedes acceder a los distintos módulos de la aplicación y gestionar tu trabajo diario.",
+    "profileIncompleteTitle": "Perfil incompleto",
+    "profileIncompleteMessage": "Para reservar vehículos debes completar tu DNI/NIE en el perfil.",
+    "completeProfileAction": "Completar perfil",
+    "profile": "Perfil",
+    "profileDesc": "Ver y editar tus datos",
+    "preferences": "Preferencias",
+    "preferencesDesc": "Tema e idioma de la aplicación",
+    "clients": "Clientes",
+    "clientsDesc": "Gestión de clientes"
+  },
+  "header": {
+    "preferences": "Preferencias",
+    "profile": "Perfil",
+    "changePassword": "Cambiar contraseña",
+    "logout": "Cerrar sesión"
+  },
+  "clients": {
+    "searchPlaceholder": "Buscar clientes...",
+    "deleteTitle": "Borrar cliente",
+    "deleteMessage": "¿Seguro que quieres borrar a {{name}}?",
+    "loadError": "Error cargando clientes:",
+    "notFound": "Cliente no encontrado",
+    "noResults": "No se han encontrado clientes",
+    "noEmail": "Sin email",
+    "noPhone": "Sin teléfono",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "dataTab": "Datos del Cliente",
+    "create": "Crear cliente",
+    "edit": "Editar cliente",
+    "delete": "Borrar cliente",
+    "errorDeleteOrders": "No se puede borrar el cliente porque tiene pedidos asociados",
+    "noOrders": "Este cliente no tiene pedidos",
+    "form": {
+      "name": "Nombre",
+      "nifCif": "NIF / CIF",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "notes": "Notas",
+      "status": "Estado"
+    }
+  },
+  "profile": {
+    "title": "Perfil de usuario",
+    "role": "Rol:",
+    "deleteAvatar": "Eliminar avatar",
+    "saveChanges": "Guardar cambios",
+    "nameUpdated": "Perfil actualizado correctamente",
+    "nameUpdateError": "Error al actualizar el perfil",
+    "form": {
+      "lastName": "Apellidos",
+      "phone": "Teléfono",
+      "birthDate": "Fecha de nacimiento (DD/MM/YYYY)",
+      "documentId": "Documento (DNI/NIF)"
+    }
+  },
+  "password": {
+    "title": "Cambiar contraseña",
+    "currentPassword": "Contraseña actual",
+    "newPassword": "Nueva contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "changeButton": "Cambiar contraseña",
+    "success": "Contraseña cambiada correctamente",
+    "error": "Error al cambiar la contraseña"
+  },
+  "orders": {
+    "subtitle": "Desde aquí se realizará la gestión de pedidos"
+  },
+  "inventory": {
+    "subtitle": "Desde aquí se realizará la gestión de inventario"
+  },
+  "vehicles": {
+    "searchPlaceholder": "Buscar vehículos...",
+    "create": "Crear vehículo",
+    "edit": "Editar vehículo",
+    "deactivate": "Desactivar",
+    "deactivateTitle": "Desactivar vehículo",
+    "deactivateMessage": "¿Seguro que quieres desactivar {{plate}}?",
+    "empty": "No hay vehículos registrados",
+    "status": {
+      "available": "Disponible",
+      "unavailable": "No disponible"
+    },
+    "form": {
+      "licensePlate": "Matrícula",
+      "brand": "Marca",
+      "model": "Modelo",
+      "year": "Año",
+      "category": "Categoría",
+      "pricePerDay": "Precio por día",
+      "mileage": "Kilometraje",
+      "color": "Color",
+      "fuel": "Combustible",
+      "status": "Estado"
+    }
+  },
+  "reservations": {
+    "createTitle": "Nueva reserva",
+    "historyTitle": "Historial de reservas",
+    "historySubtitle": "Tus reservas ordenadas por fecha de inicio",
+    "adminHistoryTitle": "Historial global de reservas",
+    "adminHistorySubtitle": "Todas las reservas del sistema",
+    "dateRangeTitle": "Rango de fechas",
+    "selectVehicleTitle": "Selecciona un vehículo",
+    "searchVehiclePlaceholder": "Buscar por marca, modelo o matrícula",
+    "searchReservationPlaceholder": "Buscar por reserva, usuario o vehículo",
+    "sortPriceAsc": "Precio ↑",
+    "sortPriceDesc": "Precio ↓",
+    "filterAll": "Todas",
+    "selectedVehicleSummary": "Vehículo seleccionado",
+    "pricePerDayLabel": "Precio/día",
+    "licensePlateLabel": "Matrícula",
+    "startDate": "Fecha inicio (DD/MM/YYYY)",
+    "endDate": "Fecha fin (DD/MM/YYYY)",
+    "fillDatesFirst": "Completa primero las fechas de la reserva",
+    "selectVehicle": "Seleccionar vehículo",
+    "selectVehicleRequired": "Debes seleccionar un vehículo",
+    "noVehiclesForRange": "No hay vehículos disponibles para ese rango",
+    "createAction": "Crear reserva",
+    "createSuccess": "Reserva creada correctamente",
+    "cancelAction": "Cancelar reserva",
+    "cancelSuccess": "Reserva cancelada correctamente",
+    "emptyMine": "Aún no tienes reservas",
+    "emptyAdmin": "No hay reservas registradas",
+    "reservationIdLabel": "Reserva",
+    "vehicleIdLabel": "Vehículo",
+    "userIdLabel": "Usuario",
+    "statusLabel": "Estado",
+    "profileIncompleteMessage": "No puedes reservar hasta completar tu DNI/NIE en el perfil",
+    "quick": {
+      "tomorrow": "Mañana",
+      "threeDays": "3 días",
+      "sevenDays": "7 días"
+    },
+    "status": {
+      "created": "Creada",
+      "cancelled": "Cancelada"
+    }
+  },
+  "login": {
+    "welcome": "Bienvenido",
+    "subtitle": "Introduce tus credenciales para continuar",
+    "password": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "signIn": "Iniciar Sesión",
+    "orContinueWith": "O continúa con",
+    "noAccount": "¿No tienes una cuenta?",
+    "register": "Regístrate ahora",
+    "invalidCredentials": "Correo o contraseña incorrectos"
+  },
+  "register": {
+    "title": "Crear cuenta",
+    "subtitle": "Regístrate para empezar a usar Sprintcar",
+    "submit": "Registrarme",
+    "haveAccount": "¿Ya tienes cuenta?",
+    "goToLogin": "Inicia sesión"
+  },
+  "validation": {
+    "emailRequired": "El correo es obligatorio",
+    "emailInvalid": "Correo electrónico inválido",
+    "passwordMin": "La contraseña debe tener al menos {{count}} caracteres",
+    "passwordMax": "La contraseña es demasiado larga",
+    "currentPasswordRequired": "La contraseña actual es obligatoria",
+    "confirmPasswordRequired": "Debes confirmar la nueva contraseña",
+    "passwordsMismatch": "Las contraseñas no coinciden",
+    "nameRequired": "El nombre es obligatorio",
+    "nameMin": "El nombre debe tener al menos {{count}} caracteres",
+    "nameMax": "El nombre es demasiado largo",
+    "nifCifInvalid": "NIF / CIF no tiene un formato válido",
+    "phoneInvalid": "El teléfono no tiene un formato válido",
+    "dateInvalid": "La fecha no tiene un formato válido",
+    "documentMax": "El documento es demasiado largo",
+    "required": "Este campo es obligatorio",
+    "maxLength": "El texto es demasiado largo",
+    "yearInvalid": "El año no es válido",
+    "priceInvalid": "El precio no es válido",
+    "mileageInvalid": "El kilometraje no es válido"
+  },
+  "errors": {
+    "userNotAuthenticated": "Usuario no autenticado",
+    "profileLoadError": "No se pudo cargar el perfil del usuario",
+    "currentPasswordWrong": "La contraseña actual es incorrecta",
+    "passwordChangeError": "Error al cambiar la contraseña: {{message}}",
+    "emailAlreadyExists": "Ya existe una cuenta con ese correo electrónico",
+    "documentIdAlreadyExists": "Ya existe una cuenta con ese DNI/NIE",
+    "invalidSpanishDocumentId": "El documento debe ser un DNI o NIE válido",
+    "invalidDateFormat": "Las fechas deben estar en formato DD/MM/YYYY",
+    "endDateBeforeStartDate": "La fecha de fin no puede ser anterior a la de inicio",
+    "startDateInPast": "La fecha de inicio no puede ser en el pasado",
+    "reservationDurationExceeded": "La duración máxima de una reserva es 60 días",
+    "vehicleAlreadyReserved": "El vehículo ya tiene una reserva en ese rango de fechas",
+    "vehicleNotFound": "El vehículo no fue encontrado o no está disponible",
+    "vehicleNotAvailable": "El vehículo no está disponible para reservar",
+    "reservationNotFound": "La reserva no fue encontrada",
+    "unauthorizedCancelReservation": "No tienes permiso para cancelar esta reserva",
+    "reservationAlreadyCancelled": "La reserva ya está cancelada",
+    "adminOnlyAction": "Esta acción solo está permitida para administradores",
+    "documentIdRequiredForReservation": "Debes completar tu DNI/NIE en el perfil antes de reservar",
+    "invalidReservationDateData": "Se detectó un problema interno con las fechas de una reserva"
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "confirm": "Confirmar",
+    "accept": "Aceptar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "unexpectedError": "Ha ocurrido un error inesperado",
+    "password": "Contraseña",
+    "retry": "Reintentar"
+  }
+}

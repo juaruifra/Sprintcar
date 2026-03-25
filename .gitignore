@@ -1,0 +1,67 @@
+# ==========================================
+# Monorepo: Node.js (NestJS + React Native/Expo)
+# ==========================================
+
+# Legacy backend (solo referencia, fuera de control de cambios)
+backend_nestjs/
+
+# Dependencies
+backend_nestjs_sprintcar/node_modules/
+frontend_RN/node_modules/
+
+# Build / cache outputs
+backend_nestjs_sprintcar/dist/
+backend_nestjs_sprintcar/coverage/
+backend_nestjs_sprintcar/.nestjs-cli_cache/
+backend_nestjs_sprintcar/*.tsbuildinfo
+
+frontend_RN/.expo/
+frontend_RN/.expo-shared/
+frontend_RN/web-build/
+frontend_RN/dist/
+frontend_RN/coverage/
+frontend_RN/.metro-health-check*
+frontend_RN/*.tsbuildinfo
+frontend_RN/expo-env.d.ts
+
+# Native build artifacts (RN/Expo prebuild)
+frontend_RN/android/.gradle/
+frontend_RN/android/app/build/
+frontend_RN/android/build/
+frontend_RN/android/local.properties
+frontend_RN/android/captures/
+
+frontend_RN/ios/Pods/
+frontend_RN/ios/build/
+
+# Environment files
+backend_nestjs_sprintcar/.env
+backend_nestjs_sprintcar/.env.*
+!backend_nestjs_sprintcar/.env.example
+
+frontend_RN/.env
+frontend_RN/.env.*
+!frontend_RN/.env.example
+
+# Package manager / debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDE / OS files
+*.log
+*.iml
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+._*
+
+# Misc extras
+backend_nestjs_sprintcar/endpoints.csv
+backend_nestjs_sprintcar/endpoints2.csv
+MyC_App.postman_collection.json
+
+# Project documentation
+docs/
