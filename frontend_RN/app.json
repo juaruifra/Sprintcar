@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "app_inicial",
-    "slug": "app_inicial",
+    "name": "sprintcar",
+    "slug": "sprintcar",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
