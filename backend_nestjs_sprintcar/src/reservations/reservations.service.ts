@@ -149,7 +149,7 @@ export class ReservationsService {
   }
 
   /**
-   * Verifica si existe alguna reserva activa (no cancelada) que se solape
+   * Verifica si existe alguna reserva activa (ni cancelada ni rechazada) que se solape
    * con el rango de fechas propuesto para un vehículo.
    * 
    * Dos períodos se solapan si: startRes <= endPropuesto AND endRes >= startPropuesto
@@ -162,10 +162,16 @@ export class ReservationsService {
     endDate: Date,
     excludeReservationId?: number,
   ): Promise<boolean> {
+    // Solo bloquean disponibilidad las reservas en curso del flujo (creada/confirmada).
+    const nonBlockingStatuses = [
+      ReservationStatus.CANCELLED,
+      ReservationStatus.REJECTED,
+    ];
+
     // Construimos una query que cuenta reservas activas que se solapen.
     const query = this.reservationsRepository.createQueryBuilder('r')
       .where('r.vehicleId = :vehicleId', { vehicleId })
-      .andWhere('r.status != :cancelledStatus', { cancelledStatus: ReservationStatus.CANCELLED })
+      .andWhere('r.status NOT IN (:...nonBlockingStatuses)', { nonBlockingStatuses })
       .andWhere('r.startDate <= :endDate', { endDate })
       .andWhere('r.endDate >= :startDate', { startDate });
 

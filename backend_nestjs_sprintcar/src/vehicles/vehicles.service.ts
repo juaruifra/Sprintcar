@@ -131,7 +131,7 @@ export class VehiclesService {
   }
 
   /**
-   * Verifica si un vehículo tiene reservas activas (no canceladas) en un rango de fechas.
+   * Verifica si un vehículo tiene reservas activas (ni canceladas ni rechazadas) en un rango de fechas.
    * 
    * Usa una query de BD para contar cuántas reservas activas se solapan con el rango propuesto.
    * Dos períodos se solapan si: startRes <= endPropuesto AND endRes >= startPropuesto.
@@ -143,12 +143,18 @@ export class VehiclesService {
     startDate: Date,
     endDate: Date,
   ): Promise<boolean> {
+    // Estados que no bloquean disponibilidad para el rango consultado.
+    const nonBlockingStatuses = [
+      ReservationStatus.CANCELLED,
+      ReservationStatus.REJECTED,
+    ];
+
     // Contamos reservas activas que se solapen con el rango de fechas solicitado.
     // Una reserva se solapa si sus fechas interseccionan con el rango.
     const count = await this.reservationsRepository
       .createQueryBuilder('r')
       .where('r.vehicleId = :vehicleId', { vehicleId })
-      .andWhere('r.status != :cancelledStatus', { cancelledStatus: ReservationStatus.CANCELLED })
+      .andWhere('r.status NOT IN (:...nonBlockingStatuses)', { nonBlockingStatuses })
       .andWhere('r.startDate <= :endDate', { endDate })
       .andWhere('r.endDate >= :startDate', { startDate })
       .getCount();
