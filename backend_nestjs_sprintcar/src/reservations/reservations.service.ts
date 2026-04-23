@@ -100,6 +100,8 @@ export class ReservationsService {
       startDate: this.formatBusinessDate(reservation.startDate),
       endDate: this.formatBusinessDate(reservation.endDate),
       status: reservation.status,
+      statusUpdatedAt: reservation.statusUpdatedAt?.toISOString() ?? null,
+      statusUpdatedByUserId: reservation.statusUpdatedByUserId ?? null,
       user: user
         ? {
             id: user.id,
@@ -175,6 +177,66 @@ export class ReservationsService {
     return (await query.getCount()) > 0;
   }
 
+  private assertAdmin(request: AuthRequest): void {
+    // Solo permitimos gestionar estados globales a administradores.
+    if (request.user.roleId !== 1) {
+      throw new ForbiddenException('errors.adminOnlyAction');
+    }
+  }
+
+  private assertStatusTransition(
+    currentStatus: ReservationStatus,
+    nextStatus: ReservationStatus,
+  ): void {
+    // Definimos transiciones permitidas para mantener un flujo consistente.
+    const allowedTransitions: Record<ReservationStatus, ReservationStatus[]> = {
+      [ReservationStatus.CREATED]: [
+        ReservationStatus.CONFIRMED,
+        ReservationStatus.REJECTED,
+        ReservationStatus.CANCELLED,
+      ],
+      [ReservationStatus.CONFIRMED]: [ReservationStatus.CANCELLED],
+      [ReservationStatus.REJECTED]: [],
+      [ReservationStatus.CANCELLED]: [],
+    };
+
+    if (!allowedTransitions[currentStatus].includes(nextStatus)) {
+      throw new BadRequestException('errors.invalidReservationStatusTransition');
+    }
+  }
+
+  private async updateStatus(
+    request: AuthRequest,
+    reservationId: number,
+    nextStatus: ReservationStatus,
+  ): Promise<ReturnType<typeof this.mapReservationResponse>> {
+    // Buscamos la reserva para validar que existe antes de cambiar estado.
+    const reservation = await this.reservationsRepository.findOne({
+      where: { id: reservationId },
+    });
+
+    if (!reservation) {
+      throw new NotFoundException('errors.reservationNotFound');
+    }
+
+    // Validamos que la transición del estado actual al nuevo esté permitida.
+    this.assertStatusTransition(reservation.status, nextStatus);
+
+    // Persistimos nuevo estado con trazabilidad de actor y fecha.
+    reservation.status = nextStatus;
+    reservation.statusUpdatedAt = new Date();
+    reservation.statusUpdatedByUserId = request.user.sub;
+    const savedReservation = await this.reservationsRepository.save(reservation);
+
+    // Adjuntamos datos relacionados para respuesta consistente con el resto del API.
+    const [vehicle, user] = await Promise.all([
+      this.vehiclesRepository.findOne({ where: { id: savedReservation.vehicleId } }),
+      this.usersRepository.findOne({ where: { id: savedReservation.userId } }),
+    ]);
+
+    return this.mapReservationResponse(savedReservation, vehicle ?? null, user ?? null);
+  }
+
   async create(request: AuthRequest, createReservationDto: CreateReservationDto) {
     // Regla crítica: para reservar, el usuario debe tener DNI/NIE informado en su perfil.
     const currentUser = await this.usersRepository.findOne({
@@ -224,6 +286,8 @@ export class ReservationsService {
       startDate,
       endDate,
       status: ReservationStatus.CREATED,
+      statusUpdatedAt: new Date(),
+      statusUpdatedByUserId: request.user.sub,
     });
 
     // Paso 8: Guardamos la reserva en la BD.
@@ -292,6 +356,24 @@ export class ReservationsService {
     );
   }
 
+  async confirm(
+    request: AuthRequest,
+    reservationId: number,
+  ): Promise<ReturnType<typeof this.mapReservationResponse>> {
+    // Aseguramos que solo admin puede confirmar reservas.
+    this.assertAdmin(request);
+    return this.updateStatus(request, reservationId, ReservationStatus.CONFIRMED);
+  }
+
+  async reject(
+    request: AuthRequest,
+    reservationId: number,
+  ): Promise<ReturnType<typeof this.mapReservationResponse>> {
+    // Aseguramos que solo admin puede rechazar reservas.
+    this.assertAdmin(request);
+    return this.updateStatus(request, reservationId, ReservationStatus.REJECTED);
+  }
+
   /**
    * Cancela una reserva existente.
    *
@@ -315,25 +397,10 @@ export class ReservationsService {
       throw new BadRequestException('errors.unauthorizedCancelReservation');
     }
 
-    // Paso 3: Verificamos que la reserva no esté ya cancelada.
-    if (reservation.status === ReservationStatus.CANCELLED) {
-      throw new BadRequestException('errors.reservationAlreadyCancelled');
-    }
+    // Paso 3: para cancelar usamos la misma validación central de transiciones.
+    const savedReservation = await this.updateStatus(request, reservationId, ReservationStatus.CANCELLED);
 
-    // Paso 4: Marcamos la reserva como cancelada.
-    reservation.status = ReservationStatus.CANCELLED;
-    const savedReservation = await this.reservationsRepository.save(reservation);
-
-    // Paso 5: Recuperamos el vehículo para devolver su resumen en la respuesta.
-    const vehicle = await this.vehiclesRepository.findOne({
-      where: { id: reservation.vehicleId },
-    });
-
-    const user = await this.usersRepository.findOne({
-      where: { id: reservation.userId },
-    });
-
-    // Devolvemos la reserva cancelada con resumen de vehículo.
-    return this.mapReservationResponse(savedReservation, vehicle ?? null, user ?? null);
+    // Paso 4: devolvemos la reserva cancelada ya mapeada y trazada.
+    return savedReservation;
   }
 }

@@ -47,6 +47,22 @@ export class ReservationsController {
     return this.reservationsService.listAdmin();
   }
 
+  @Patch(':id/confirm')
+  @UseGuards(RolesGuard)
+  @Roles(1)
+  @ApiOperation({ summary: 'Confirmar una reserva (solo admin)' })
+  async confirm(@Req() request: AuthRequest, @Param('id', ParseIntPipe) id: number) {
+    return this.reservationsService.confirm(request, id);
+  }
+
+  @Patch(':id/reject')
+  @UseGuards(RolesGuard)
+  @Roles(1)
+  @ApiOperation({ summary: 'Rechazar una reserva (solo admin)' })
+  async reject(@Req() request: AuthRequest, @Param('id', ParseIntPipe) id: number) {
+    return this.reservationsService.reject(request, id);
+  }
+
   @Patch(':id/cancel')
   @ApiOperation({ summary: 'Cancelar una reserva existente' })
   async cancel(
