@@ -1,13 +1,11 @@
 import {
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AuthRequest } from '../auth/interfaces/auth-request.interface';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { VehicleEntity } from './vehicle.entity';
@@ -23,14 +21,6 @@ export class VehiclesService {
     @InjectRepository(ReservationEntity)
     private readonly reservationsRepository: Repository<ReservationEntity>,
   ) {}
-
-
-  private assertAdmin(request: AuthRequest): void {
-    // Protegemos operaciones de gestión para que solo las ejecute el admin.
-    if (request.user.roleId !== 1) {
-      throw new ForbiddenException('Solo el administrador puede gestionar vehículos');
-    }
-  }
 
   private mapVehicleResponse(vehicle: VehicleEntity) {
     // Mapeo explícito para controlar el contrato de salida del API.
@@ -50,9 +40,7 @@ export class VehiclesService {
     };
   }
 
-  async listAdmin(request: AuthRequest) {
-    this.assertAdmin(request);
-
+  async listAdmin() {
     const vehicles = await this.vehiclesRepository.find({
       order: { brand: 'ASC', model: 'ASC' },
     });
@@ -169,9 +157,7 @@ export class VehiclesService {
     return count > 0;
   }
 
-  async create(request: AuthRequest, createVehicleDto: CreateVehicleDto) {
-    this.assertAdmin(request);
-
+  async create(createVehicleDto: CreateVehicleDto) {
     const normalizedPlate = createVehicleDto.licensePlate.trim().toUpperCase();
 
     const existingVehicle = await this.vehiclesRepository.findOne({
@@ -200,9 +186,7 @@ export class VehiclesService {
     return this.mapVehicleResponse(savedVehicle);
   }
 
-  async update(request: AuthRequest, vehicleId: number, updateVehicleDto: UpdateVehicleDto) {
-    this.assertAdmin(request);
-
+  async update(vehicleId: number, updateVehicleDto: UpdateVehicleDto) {
     const vehicle = await this.vehiclesRepository.findOne({ where: { id: vehicleId } });
 
     if (!vehicle) {
@@ -262,9 +246,7 @@ export class VehiclesService {
     return this.mapVehicleResponse(savedVehicle);
   }
 
-  async deactivate(request: AuthRequest, vehicleId: number) {
-    this.assertAdmin(request);
-
+  async deactivate(vehicleId: number) {
     const vehicle = await this.vehiclesRepository.findOne({ where: { id: vehicleId } });
 
     if (!vehicle) {

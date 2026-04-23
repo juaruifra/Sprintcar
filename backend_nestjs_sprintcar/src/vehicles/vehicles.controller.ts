@@ -8,12 +8,12 @@ import {
   Post,
   Put,
   Query,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import type { AuthRequest } from '../auth/interfaces/auth-request.interface';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { VehiclesService } from './vehicles.service';
@@ -26,9 +26,11 @@ export class VehiclesController {
   constructor(private readonly vehiclesService: VehiclesService) {}
 
   @Get('admin')
+  @UseGuards(RolesGuard)
+  @Roles(1)
   @ApiOperation({ summary: 'Listar vehículos para gestión admin' })
-  async listAdmin(@Req() request: AuthRequest) {
-    return this.vehiclesService.listAdmin(request);
+  async listAdmin() {
+    return this.vehiclesService.listAdmin();
   }
 
   @Get('available')
@@ -49,30 +51,26 @@ export class VehiclesController {
   }
 
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles(1)
   @ApiOperation({ summary: 'Crear vehículo (solo admin)' })
-  async create(
-    @Req() request: AuthRequest,
-    @Body() createVehicleDto: CreateVehicleDto,
-  ) {
-    return this.vehiclesService.create(request, createVehicleDto);
+  async create(@Body() createVehicleDto: CreateVehicleDto) {
+    return this.vehiclesService.create(createVehicleDto);
   }
 
   @Put(':id')
+  @UseGuards(RolesGuard)
+  @Roles(1)
   @ApiOperation({ summary: 'Actualizar vehículo (solo admin)' })
-  async update(
-    @Req() request: AuthRequest,
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateVehicleDto: UpdateVehicleDto,
-  ) {
-    return this.vehiclesService.update(request, id, updateVehicleDto);
+  async update(@Param('id', ParseIntPipe) id: number, @Body() updateVehicleDto: UpdateVehicleDto) {
+    return this.vehiclesService.update(id, updateVehicleDto);
   }
 
   @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles(1)
   @ApiOperation({ summary: 'Dar de baja vehículo (solo admin)' })
-  async deactivate(
-    @Req() request: AuthRequest,
-    @Param('id', ParseIntPipe) id: number,
-  ) {
-    return this.vehiclesService.deactivate(request, id);
+  async deactivate(@Param('id', ParseIntPipe) id: number) {
+    return this.vehiclesService.deactivate(id);
   }
 }

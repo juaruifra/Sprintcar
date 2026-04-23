@@ -31,13 +31,6 @@ export class ReservationsService {
     private readonly usersRepository: Repository<UserEntity>,
   ) {}
 
-  private assertAdmin(request: AuthRequest): void {
-    // Esta acción está reservada al rol administrador.
-    if (request.user.roleId !== 1) {
-      throw new ForbiddenException('errors.adminOnlyAction');
-    }
-  }
-
   private parseBusinessDate(value: string): Date {
     // Validamos que la fecha tenga el formato DD/MM/YYYY que espera el frontend.
     // Si no cumple el formato, lanzamos error con clave i18n para que se traduzca automáticamente.
@@ -273,10 +266,7 @@ export class ReservationsService {
     );
   }
 
-  async listAdmin(request: AuthRequest) {
-    // Solo admin puede consultar reservas globales.
-    this.assertAdmin(request);
-
+  async listAdmin() {
     const reservations = await this.reservationsRepository.find({
       order: { startDate: 'DESC', endDate: 'DESC', id: 'DESC' },
     });

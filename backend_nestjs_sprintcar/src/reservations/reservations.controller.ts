@@ -10,7 +10,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import type { AuthRequest } from '../auth/interfaces/auth-request.interface';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { ReservationsService } from './reservations.service';
@@ -38,9 +40,11 @@ export class ReservationsController {
   }
 
   @Get('admin')
+  @UseGuards(RolesGuard)
+  @Roles(1)
   @ApiOperation({ summary: 'Listar todas las reservas (solo admin)' })
-  async listAdmin(@Req() request: AuthRequest) {
-    return this.reservationsService.listAdmin(request);
+  async listAdmin() {
+    return this.reservationsService.listAdmin();
   }
 
   @Patch(':id/cancel')
