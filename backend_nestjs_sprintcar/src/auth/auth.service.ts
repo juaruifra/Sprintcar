@@ -61,12 +61,12 @@ export class AuthService {
     const user = await this.usersService.findByEmailForAuth(loginDto.email.toLowerCase().trim());
 
     if (!user || !user.isActive) {
-      throw new UnauthorizedException('Credenciales incorrectas');
+      throw new UnauthorizedException('errors.invalidCredentials');
     }
 
     const isValidPassword = await bcrypt.compare(loginDto.password, user.passwordHash);
     if (!isValidPassword) {
-      throw new UnauthorizedException('Credenciales incorrectas');
+      throw new UnauthorizedException('errors.invalidCredentials');
     }
 
     const accessToken = await this.jwtService.signAsync({
@@ -168,7 +168,7 @@ export class AuthService {
     const user = await this.usersService.findById(userId);
 
     if (!user || !user.isActive) {
-      throw new UnauthorizedException('Usuario no autorizado');
+      throw new UnauthorizedException('errors.userUnauthorized');
     }
 
     return {
@@ -189,7 +189,7 @@ export class AuthService {
     const user = await this.usersService.findByIdForAuth(userId);
 
     if (!user || !user.isActive) {
-      throw new UnauthorizedException('Usuario no autorizado');
+      throw new UnauthorizedException('errors.userUnauthorized');
     }
 
     // Validamos la contraseña actual antes de permitir el cambio.
@@ -199,7 +199,7 @@ export class AuthService {
     );
 
     if (!isCurrentPasswordValid) {
-      throw new UnauthorizedException('La contraseña actual es incorrecta');
+      throw new UnauthorizedException('errors.currentPasswordWrong');
     }
 
     // Guardamos la nueva contraseña en formato hash.

@@ -171,7 +171,7 @@ export class VehiclesService {
     });
 
     if (existingVehicle) {
-      throw new ConflictException('Ya existe un vehículo con esa matrícula');
+      throw new ConflictException('errors.vehicleLicensePlateAlreadyExists');
     }
 
     const vehicle = this.vehiclesRepository.create({
@@ -196,7 +196,7 @@ export class VehiclesService {
     const vehicle = await this.vehiclesRepository.findOne({ where: { id: vehicleId } });
 
     if (!vehicle) {
-      throw new NotFoundException('Vehículo no encontrado');
+      throw new NotFoundException('errors.vehicleNotFound');
     }
 
     if (updateVehicleDto.licensePlate) {
@@ -206,7 +206,7 @@ export class VehiclesService {
       });
 
       if (existingVehicle && existingVehicle.id !== vehicle.id) {
-        throw new ConflictException('Ya existe un vehículo con esa matrícula');
+        throw new ConflictException('errors.vehicleLicensePlateAlreadyExists');
       }
 
       vehicle.licensePlate = normalizedPlate;
@@ -256,7 +256,7 @@ export class VehiclesService {
     const vehicle = await this.vehiclesRepository.findOne({ where: { id: vehicleId } });
 
     if (!vehicle) {
-      throw new NotFoundException('Vehículo no encontrado');
+      throw new NotFoundException('errors.vehicleNotFound');
     }
 
     // Baja lógica para no perder trazabilidad de reservas históricas.

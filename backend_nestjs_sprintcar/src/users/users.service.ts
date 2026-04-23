@@ -66,7 +66,7 @@ export class UsersService {
 
       // Validación defensiva para asegurar el formato esperado por negocio.
       if (!DATE_DDMMYYYY_REGEX.test(value)) {
-        throw new BadRequestException('La fecha debe tener formato DD/MM/YYYY');
+        throw new BadRequestException('errors.birthDateFormatInvalid');
       }
 
       const [day, month, year] = value.split('/').map(Number);
@@ -93,7 +93,7 @@ export class UsersService {
         const [day, month, year] = value.split('/').map(Number);
         normalizedDate = new Date(Date.UTC(year, month - 1, day));
       } else {
-        throw new BadRequestException('Formato de fecha no soportado para birthDate');
+        throw new BadRequestException('errors.birthDateFormatUnsupported');
       }
 
       const day = String(normalizedDate.getUTCDate()).padStart(2, '0');
@@ -184,7 +184,7 @@ export class UsersService {
     const user = await this.findById(userId);
 
     if (!user) {
-      throw new NotFoundException('Usuario no encontrado para reactivación');
+      throw new NotFoundException('errors.userNotFoundForReactivation');
     }
 
     // Rehidratamos la cuenta inactiva con los datos del nuevo registro:
@@ -227,7 +227,7 @@ export class UsersService {
     const user = await this.findById(userId);
 
     if (!user || !user.isActive) {
-      throw new NotFoundException('Usuario no encontrado');
+      throw new NotFoundException('errors.userNotFound');
     }
 
     // Respuesta explícita para evitar exponer campos sensibles ahora y en el futuro.
@@ -248,7 +248,7 @@ export class UsersService {
     const user = await this.findById(userId);
 
     if (!user || !user.isActive) {
-      throw new NotFoundException('Usuario no encontrado');
+      throw new NotFoundException('errors.userNotFound');
     }
 
     // Solo tocamos campos de perfil acordados para esta fase del roadmap.
@@ -293,7 +293,7 @@ export class UsersService {
       return 'jpg';
     }
 
-    throw new BadRequestException('Tipo de archivo no permitido. Solo JPG y PNG');
+    throw new BadRequestException('errors.invalidAvatarFileType');
   }
 
   private buildSupabasePublicUrl(filePath: string): string {
@@ -301,7 +301,7 @@ export class UsersService {
     const bucket = this.configService.get<string>('SUPABASE_AVATARS_BUCKET') ?? 'avatars';
 
     if (!supabaseUrl) {
-      throw new InternalServerErrorException('SUPABASE_URL no está configurado');
+      throw new InternalServerErrorException('errors.supabaseUrlNotConfigured');
     }
 
     // Añadimos timestamp para evitar cache viejo de imagen en cliente.
@@ -310,7 +310,7 @@ export class UsersService {
 
   async uploadAvatar(userId: number, file: UploadedAvatarFile) {
     if (!file) {
-      throw new BadRequestException('No se ha recibido ningún archivo');
+      throw new BadRequestException('errors.fileNotProvided');
     }
 
     const serviceRoleKey = this.configService.get<string>('SUPABASE_SERVICE_ROLE_KEY');
@@ -318,7 +318,7 @@ export class UsersService {
     const bucket = this.configService.get<string>('SUPABASE_AVATARS_BUCKET') ?? 'avatars';
 
     if (!serviceRoleKey || !supabaseUrl) {
-      throw new InternalServerErrorException('Falta configuración de Supabase Storage en backend');
+      throw new InternalServerErrorException('errors.storageConfigMissing');
     }
 
     const extension = this.getAvatarFileExtension(file.mimetype);
@@ -340,8 +340,7 @@ export class UsersService {
     );
 
     if (!uploadResponse.ok) {
-      const uploadError = await uploadResponse.text();
-      throw new InternalServerErrorException(`Error subiendo avatar: ${uploadError}`);
+      throw new InternalServerErrorException('errors.avatarUploadFailed');
     }
 
     const avatarUrl = this.buildSupabasePublicUrl(filePath);

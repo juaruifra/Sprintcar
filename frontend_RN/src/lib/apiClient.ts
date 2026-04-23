@@ -7,7 +7,7 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 function ensureApiUrl(): string {
   if (!API_URL) {
-    throw new Error('Falta EXPO_PUBLIC_API_URL en variables de entorno');
+    throw new Error(i18n.t('errors.apiBaseUrlMissing'));
   }
 
   // Eliminamos el trailing slash si existe, para evitar URLs dobles como /api//usuarios.

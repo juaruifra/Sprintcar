@@ -89,7 +89,7 @@ export class UsersController {
     const uploadedFile = files?.avatar?.[0] ?? files?.file?.[0];
 
     if (!uploadedFile) {
-      throw new BadRequestException('No se ha recibido ningún archivo');
+      throw new BadRequestException('errors.fileNotProvided');
     }
 
     // Subimos el archivo al bucket de Supabase y guardamos la URL pública.

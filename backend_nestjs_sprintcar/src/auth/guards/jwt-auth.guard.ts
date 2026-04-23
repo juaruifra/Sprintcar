@@ -16,7 +16,7 @@ export class JwtAuthGuard implements CanActivate {
     const header = request.headers.authorization;
 
     if (!header?.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Missing bearer token');
+      throw new UnauthorizedException('errors.missingBearerToken');
     }
 
     const token = header.slice(7);
@@ -26,7 +26,7 @@ export class JwtAuthGuard implements CanActivate {
       request.user = payload;
       return true;
     } catch {
-      throw new UnauthorizedException('Invalid or expired token');
+      throw new UnauthorizedException('errors.invalidOrExpiredToken');
     }
   }
 }
