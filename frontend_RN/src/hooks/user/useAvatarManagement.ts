@@ -3,6 +3,7 @@ import { useUploadAvatar } from "./useUploadAvatar";
 import { useDeleteAvatar } from "./useDeleteAvatar";
 import { useSnackbar } from "../useSnackbar";
 import { useConfirmAction } from "../useConfirmAction";
+import { useTranslation } from "react-i18next";
 
 // Parámetros que necesita el hook 
 type UseAvatarManagementParams = {
@@ -18,6 +19,7 @@ type UseAvatarManagementParams = {
  * - Gestiona sus propios mensajes de éxito/error y confirmaciones
  */
 export function useAvatarManagement({ userId }: UseAvatarManagementParams) {
+  const { t } = useTranslation();
   
   // Hook para mensajes de éxito/error
   const { showSuccess, showError: showSnackbarError, SnackbarUI } = useSnackbar();
@@ -28,11 +30,11 @@ export function useAvatarManagement({ userId }: UseAvatarManagementParams) {
   // Hook para subir avatar
   const uploadAvatarMutation = useUploadAvatar({
     onSuccess: () => {
-      showSuccess("Avatar actualizado correctamente");
+      showSuccess(t("profile.avatar.updatedSuccess"));
     },
     onError: (error) => {
       showSnackbarError(
-        error instanceof Error ? error.message : "Error al subir el avatar"
+        error instanceof Error ? error.message : t("profile.avatar.uploadError")
       );
     },
   });
@@ -40,11 +42,11 @@ export function useAvatarManagement({ userId }: UseAvatarManagementParams) {
   // Hook para eliminar avatar
   const deleteAvatarMutation = useDeleteAvatar({
     onSuccess: () => {
-      showSuccess("Avatar eliminado correctamente");
+      showSuccess(t("profile.avatar.deletedSuccess"));
     },
     onError: (error) => {
       showSnackbarError(
-        error instanceof Error ? error.message : "Error al eliminar el avatar"
+        error instanceof Error ? error.message : t("profile.avatar.deleteError")
       );
     },
   });
@@ -56,8 +58,8 @@ export function useAvatarManagement({ userId }: UseAvatarManagementParams) {
 
     if (status !== "granted") {
       showError({
-        title: "Permisos necesarios",
-        message: "Necesitamos permisos para acceder a tus fotos",
+        title: t("profile.avatar.permissionTitle"),
+        message: t("profile.avatar.permissionMessage"),
       });
       return;
     }
@@ -80,8 +82,8 @@ export function useAvatarManagement({ userId }: UseAvatarManagementParams) {
 
       if (selectedImage.fileSize && selectedImage.fileSize > MAX_SIZE_BYTES) {
         showError({
-          title: "Imagen muy grande",
-          message: `La imagen es demasiado grande. El tamaño máximo es ${MAX_SIZE_MB} MB.`,
+          title: t("profile.avatar.tooLargeTitle"),
+          message: t("profile.avatar.tooLargeMessage", { maxSizeMb: MAX_SIZE_MB }),
         });
         return;
       }
@@ -98,8 +100,8 @@ export function useAvatarManagement({ userId }: UseAvatarManagementParams) {
   // Función para eliminar el avatar (con confirmación)
   const handleDeleteAvatar = () => {
     confirm({
-      title: "Eliminar avatar",
-      message: "¿Estás seguro de que quieres eliminar tu avatar?",
+      title: t("profile.avatar.deleteConfirmTitle"),
+      message: t("profile.avatar.deleteConfirmMessage"),
       action: () => {
         deleteAvatarMutation.mutate({
           userId: userId,

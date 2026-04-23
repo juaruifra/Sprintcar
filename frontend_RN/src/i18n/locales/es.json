@@ -87,6 +87,18 @@
     "saveChanges": "Guardar cambios",
     "nameUpdated": "Perfil actualizado correctamente",
     "nameUpdateError": "Error al actualizar el perfil",
+    "avatar": {
+      "updatedSuccess": "Avatar actualizado correctamente",
+      "deletedSuccess": "Avatar eliminado correctamente",
+      "uploadError": "Error al subir el avatar",
+      "deleteError": "Error al eliminar el avatar",
+      "permissionTitle": "Permisos necesarios",
+      "permissionMessage": "Necesitamos permisos para acceder a tus fotos",
+      "tooLargeTitle": "Imagen muy grande",
+      "tooLargeMessage": "La imagen es demasiado grande. El tamaño máximo es {{maxSizeMb}} MB.",
+      "deleteConfirmTitle": "Eliminar avatar",
+      "deleteConfirmMessage": "¿Estás seguro de que quieres eliminar tu avatar?"
+    },
     "form": {
       "lastName": "Apellidos",
       "phone": "Teléfono",
