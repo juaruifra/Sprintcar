@@ -158,6 +158,10 @@
     "noVehiclesForRange": "No vehicles available for that date range",
     "createAction": "Create reservation",
     "createSuccess": "Reservation created successfully",
+    "confirmAction": "Confirm reservation",
+    "confirmSuccess": "Reservation confirmed successfully",
+    "rejectAction": "Reject reservation",
+    "rejectSuccess": "Reservation rejected successfully",
     "cancelAction": "Cancel reservation",
     "cancelSuccess": "Reservation cancelled successfully",
     "emptyMine": "You do not have reservations yet",
@@ -175,6 +179,8 @@
     },
     "status": {
       "created": "Created",
+      "confirmed": "Confirmed",
+      "rejected": "Rejected",
       "cancelled": "Cancelled"
     }
   },
@@ -234,6 +240,7 @@
     "vehicleNotAvailable": "The vehicle is not available for reservation",
     "reservationNotFound": "The reservation was not found",
     "unauthorizedCancelReservation": "You do not have permission to cancel this reservation",
+    "invalidReservationStatusTransition": "That status change is not allowed from the current state",
     "reservationAlreadyCancelled": "The reservation is already cancelled",
     "adminOnlyAction": "This action is only allowed for administrators",
     "documentIdRequiredForReservation": "You must complete your DNI/NIE in your profile before reserving",

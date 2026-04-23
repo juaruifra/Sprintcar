@@ -158,6 +158,10 @@
     "noVehiclesForRange": "No hay vehículos disponibles para ese rango",
     "createAction": "Crear reserva",
     "createSuccess": "Reserva creada correctamente",
+    "confirmAction": "Confirmar reserva",
+    "confirmSuccess": "Reserva confirmada correctamente",
+    "rejectAction": "Rechazar reserva",
+    "rejectSuccess": "Reserva rechazada correctamente",
     "cancelAction": "Cancelar reserva",
     "cancelSuccess": "Reserva cancelada correctamente",
     "emptyMine": "Aún no tienes reservas",
@@ -175,6 +179,8 @@
     },
     "status": {
       "created": "Creada",
+      "confirmed": "Confirmada",
+      "rejected": "Rechazada",
       "cancelled": "Cancelada"
     }
   },
@@ -234,6 +240,7 @@
     "vehicleNotAvailable": "El vehículo no está disponible para reservar",
     "reservationNotFound": "La reserva no fue encontrada",
     "unauthorizedCancelReservation": "No tienes permiso para cancelar esta reserva",
+    "invalidReservationStatusTransition": "No se puede realizar ese cambio de estado desde el estado actual",
     "reservationAlreadyCancelled": "La reserva ya está cancelada",
     "adminOnlyAction": "Esta acción solo está permitida para administradores",
     "documentIdRequiredForReservation": "Debes completar tu DNI/NIE en el perfil antes de reservar",

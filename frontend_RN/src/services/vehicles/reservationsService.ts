@@ -1,5 +1,8 @@
 import { apiClient } from '../../lib/apiClient';
 
+// Estados que puede devolver el backend para una reserva.
+export type ReservationStatus = 'CREADA' | 'CONFIRMADA' | 'RECHAZADA' | 'CANCELADA';
+
 export type ReservationVehicleSummary = {
   id: number;
   licensePlate: string;
@@ -23,7 +26,9 @@ export type Reservation = {
   vehicleId: number;
   startDate: string;
   endDate: string;
-  status: 'CREADA' | 'CANCELADA';
+  status: ReservationStatus;
+  statusUpdatedAt: string | null;
+  statusUpdatedByUserId: number | null;
   user: ReservationUserSummary | null;
   vehicle: ReservationVehicleSummary | null;
 };
@@ -45,6 +50,16 @@ export async function fetchMyReservations(): Promise<Reservation[]> {
 
 export async function fetchAdminReservations(): Promise<Reservation[]> {
   return apiClient.get<Reservation[]>('/reservations/admin', { auth: true });
+}
+
+// Acción admin para confirmar una reserva creada.
+export async function confirmReservation(reservationId: number): Promise<Reservation> {
+  return apiClient.patch<Reservation>(`/reservations/${reservationId}/confirm`, undefined, { auth: true });
+}
+
+// Acción admin para rechazar una reserva creada.
+export async function rejectReservation(reservationId: number): Promise<Reservation> {
+  return apiClient.patch<Reservation>(`/reservations/${reservationId}/reject`, undefined, { auth: true });
 }
 
 export async function cancelReservation(reservationId: number): Promise<Reservation> {

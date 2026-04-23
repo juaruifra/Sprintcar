@@ -1,9 +1,17 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Reservation } from '../../services/vehicles/reservationsService';
+import { Reservation, ReservationStatus } from '../../services/vehicles/reservationsService';
 import { useAdminReservations } from './useAdminReservations';
-import { useCancelReservation } from './useCancelReservation';
+import { useAdminReservationActions } from './useAdminReservationActions';
 import { useSnackbar } from '../useSnackbar';
+
+export const ADMIN_STATUS_FILTERS: Array<'all' | ReservationStatus> = [
+  'all',
+  'CREADA',
+  'CONFIRMADA',
+  'RECHAZADA',
+  'CANCELADA',
+];
 
 /**
  * Hook de pantalla de reservas para administrador.
@@ -14,10 +22,10 @@ import { useSnackbar } from '../useSnackbar';
 export function useReservasAdminScreen() {
   const { t } = useTranslation();
   const reservationsQuery = useAdminReservations();
-  const cancelReservationMutation = useCancelReservation();
+  const { confirmMutation, rejectMutation, cancelMutation } = useAdminReservationActions();
   const { showSuccess, showError, SnackbarUI } = useSnackbar();
 
-  const [statusFilter, setStatusFilter] = useState<'all' | 'CREADA' | 'CANCELADA'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | ReservationStatus>('all');
   const [search, setSearch] = useState('');
 
   const getUserDisplayName = (item: Reservation) => {
@@ -48,15 +56,39 @@ export function useReservasAdminScreen() {
   }, [reservationsQuery.data, search, statusFilter]);
 
   const handleCancelReservation = (reservationId: number) => {
-    cancelReservationMutation.mutate(reservationId, {
+    cancelMutation.mutate(reservationId, {
       onSuccess: () => showSuccess(t('reservations.cancelSuccess')),
       onError: (error) => showError(error instanceof Error ? error.message : t('common.unexpectedError')),
     });
   };
 
+  const handleConfirmReservation = (reservationId: number) => {
+    // Confirmar cambia una reserva creada a confirmada.
+    confirmMutation.mutate(reservationId, {
+      onSuccess: () => showSuccess(t('reservations.confirmSuccess')),
+      onError: (error) => showError(error instanceof Error ? error.message : t('common.unexpectedError')),
+    });
+  };
+
+  const handleRejectReservation = (reservationId: number) => {
+    // Rechazar cambia una reserva creada a rechazada.
+    rejectMutation.mutate(reservationId, {
+      onSuccess: () => showSuccess(t('reservations.rejectSuccess')),
+      onError: (error) => showError(error instanceof Error ? error.message : t('common.unexpectedError')),
+    });
+  };
+
+  const isAnyStatusActionPending =
+    confirmMutation.isPending ||
+    rejectMutation.isPending ||
+    cancelMutation.isPending;
+
   return {
     reservationsQuery,
-    cancelReservationMutation,
+    confirmMutation,
+    rejectMutation,
+    cancelMutation,
+    isAnyStatusActionPending,
     SnackbarUI,
     statusFilter,
     setStatusFilter,
@@ -64,6 +96,8 @@ export function useReservasAdminScreen() {
     setSearch,
     reservations,
     getUserDisplayName,
+    handleConfirmReservation,
+    handleRejectReservation,
     handleCancelReservation,
   };
 }

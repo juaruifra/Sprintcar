@@ -12,15 +12,25 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import AppHeader from '../layout/AppHeader';
-import { useReservasAdminScreen } from '../../hooks/reservas/useReservasAdminScreen';
+import {
+  ADMIN_STATUS_FILTERS,
+  useReservasAdminScreen,
+} from '../../hooks/reservas/useReservasAdminScreen';
 import ReservationAdminCard from './cards/ReservationAdminCard';
+
+const STATUS_I18N_KEY: Record<'CREADA' | 'CONFIRMADA' | 'RECHAZADA' | 'CANCELADA', string> = {
+  CREADA: 'created',
+  CONFIRMADA: 'confirmed',
+  RECHAZADA: 'rejected',
+  CANCELADA: 'cancelled',
+};
 
 export default function ReservasAdminScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const {
     reservationsQuery,
-    cancelReservationMutation,
+    isAnyStatusActionPending,
     SnackbarUI,
     statusFilter,
     setStatusFilter,
@@ -28,6 +38,8 @@ export default function ReservasAdminScreen() {
     setSearch,
     reservations,
     getUserDisplayName,
+    handleConfirmReservation,
+    handleRejectReservation,
     handleCancelReservation,
   } = useReservasAdminScreen();
 
@@ -80,12 +92,14 @@ export default function ReservasAdminScreen() {
 
               <SegmentedButtons
                 value={statusFilter}
-                onValueChange={(value) => setStatusFilter(value as 'all' | 'CREADA' | 'CANCELADA')}
-                buttons={[
-                  { value: 'all', label: t('reservations.filterAll') },
-                  { value: 'CREADA', label: t('reservations.status.created') },
-                  { value: 'CANCELADA', label: t('reservations.status.cancelled') },
-                ]}
+                onValueChange={(value) => setStatusFilter(value as typeof statusFilter)}
+                // Generamos opciones desde una lista única para no repetir estado en varias capas.
+                buttons={ADMIN_STATUS_FILTERS.map((status) => ({
+                  value: status,
+                  label: status === 'all'
+                    ? t('reservations.filterAll')
+                    : t(`reservations.status.${STATUS_I18N_KEY[status]}`),
+                }))}
               />
             </Card.Content>
           </Card>
@@ -101,7 +115,9 @@ export default function ReservasAdminScreen() {
           <ReservationAdminCard
             reservation={item}
             userDisplayName={getUserDisplayName(item)}
-            isCancelling={cancelReservationMutation.isPending}
+            isActionPending={isAnyStatusActionPending}
+            onConfirm={handleConfirmReservation}
+            onReject={handleRejectReservation}
             onCancel={handleCancelReservation}
           />
         )}
