@@ -29,8 +29,42 @@ export class VehiclesController {
   @UseGuards(RolesGuard)
   @Roles(1)
   @ApiOperation({ summary: 'Listar vehículos para gestión admin' })
-  async listAdmin() {
-    return this.vehiclesService.listAdmin();
+  async listAdmin(
+    @Query('minPrice') minPrice?: string,
+    @Query('maxPrice') maxPrice?: string,
+    @Query('category') category?: string,
+    @Query('status') status?: string,
+    @Query('search') search?: string,
+  ) {
+    const filters: any = { includeInactive: true };
+    if (minPrice) filters.minPrice = Number(minPrice);
+    if (maxPrice) filters.maxPrice = Number(maxPrice);
+    if (category) filters.category = category;
+    if (status) filters.status = status;
+    if (search) filters.search = search;
+
+    return this.vehiclesService.list(filters);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Listar vehículos con filtros públicos (admin use /admin)' })
+  async list(
+    @Query('minPrice') minPrice?: string,
+    @Query('maxPrice') maxPrice?: string,
+    @Query('category') category?: string,
+    @Query('status') status?: string,
+    @Query('search') search?: string,
+  ) {
+    // Endpoint público para listar vehículos (no restringido a admin).
+    // Permite filtros por precio, categoría, estado y búsqueda libre.
+    const filters: any = {};
+    if (minPrice) filters.minPrice = Number(minPrice);
+    if (maxPrice) filters.maxPrice = Number(maxPrice);
+    if (category) filters.category = category;
+    if (status) filters.status = status;
+    if (search) filters.search = search;
+
+    return this.vehiclesService.list(filters);
   }
 
   @Get('available')

@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import AppHeader from '../layout/AppHeader';
 import { useReservasUserScreen } from '../../hooks/reservas/useReservasUserScreen';
 import ReservationUserCard from './cards/ReservationUserCard';
+import AuthTextInput from '../AuthTextInput';
 
 export default function ReservasUserScreen() {
   const theme = useTheme();
@@ -42,6 +43,12 @@ export default function ReservasUserScreen() {
     setSelectedVehicleId,
     vehicleSearch,
     setVehicleSearch,
+    minPriceFilter,
+    setMinPriceFilter,
+    maxPriceFilter,
+    setMaxPriceFilter,
+    categoryFilter,
+    setCategoryFilter,
     priceSort,
     setPriceSort,
     canFetchAvailableVehicles,
@@ -181,6 +188,30 @@ export default function ReservasUserScreen() {
                   placeholder={t('reservations.searchVehiclePlaceholder')}
                   value={vehicleSearch}
                   onChangeText={setVehicleSearch}
+                />
+
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <AuthTextInput
+                    label={t('vehicles.filters.minPrice')}
+                    keyboardType="decimal-pad"
+                    style={{ flex: 1 }}
+                    value={minPriceFilter !== undefined ? String(minPriceFilter) : ''}
+                    onChangeText={(v) => setMinPriceFilter(v ? Number(v) : undefined)}
+                  />
+                  <AuthTextInput
+                    label={t('vehicles.filters.maxPrice')}
+                    keyboardType="decimal-pad"
+                    style={{ flex: 1 }}
+                    value={maxPriceFilter !== undefined ? String(maxPriceFilter) : ''}
+                    onChangeText={(v) => setMaxPriceFilter(v ? Number(v) : undefined)}
+                  />
+                </View>
+
+                <AuthTextInput
+                  label={t('vehicles.filters.category')}
+                  style={{ marginTop: 8 }}
+                  value={categoryFilter ?? ''}
+                  onChangeText={setCategoryFilter}
                 />
 
                 <SegmentedButtons

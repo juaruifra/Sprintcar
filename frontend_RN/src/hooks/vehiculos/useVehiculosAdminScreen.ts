@@ -60,7 +60,18 @@ export function useVehiculosAdminScreen() {
   const [isCreateVisible, setIsCreateVisible] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
 
-  const vehiclesQuery = useAdminVehicles();
+  // Filtros para administración (pueden ser vinculados a un UI de filtros)
+  const [minPriceFilter, setMinPriceFilter] = useState<number | undefined>(undefined);
+  const [maxPriceFilter, setMaxPriceFilter] = useState<number | undefined>(undefined);
+  const [categoryFilter, setCategoryFilter] = useState<string | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
+
+  const vehiclesQuery = useAdminVehicles({
+    minPrice: minPriceFilter,
+    maxPrice: maxPriceFilter,
+    category: categoryFilter,
+    status: statusFilter,
+  });
   const createVehicleMutation = useCreateVehicle();
   const updateVehicleMutation = useUpdateVehicle();
 
@@ -129,6 +140,15 @@ export function useVehiculosAdminScreen() {
   };
 
   return {
+    // filtros (exponer para UI)
+    minPriceFilter,
+    setMinPriceFilter,
+    maxPriceFilter,
+    setMaxPriceFilter,
+    categoryFilter,
+    setCategoryFilter,
+    statusFilter,
+    setStatusFilter,
     search,
     setSearch,
     vehicles,

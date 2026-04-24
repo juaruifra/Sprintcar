@@ -133,6 +133,12 @@
       "available": "Disponible",
       "unavailable": "No disponible"
     },
+    "filters": {
+      "minPrice": "Precio mínimo",
+      "maxPrice": "Precio máximo",
+      "category": "Categoría",
+      "status": "Estado"
+    },
     "form": {
       "licensePlate": "Matrícula",
       "brand": "Marca",
@@ -275,6 +281,8 @@
     "invalidReservationDateData": "Se detectó un problema interno con las fechas de una reserva"
   },
   "common": {
+    "apply": "Aplicar",
+    "clear": "Limpiar",
     "save": "Guardar",
     "cancel": "Cancelar",
     "delete": "Eliminar",

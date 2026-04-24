@@ -6,6 +6,7 @@ import { useVehiculosAdminScreen } from '../../hooks/vehiculos/useVehiculosAdmin
 import AppHeader from '../layout/AppHeader';
 import VehicleFormModal from './form/VehicleFormModal';
 import VehicleAdminCard from './VehicleAdminCard';
+import AuthTextInput from '../AuthTextInput';
 
 export default function VehiculosAdminScreen() {
   const theme = useTheme();
@@ -15,6 +16,14 @@ export default function VehiculosAdminScreen() {
     setSearch,
     vehicles,
     vehiclesQuery,
+    minPriceFilter,
+    setMinPriceFilter,
+    maxPriceFilter,
+    setMaxPriceFilter,
+    categoryFilter,
+    setCategoryFilter,
+    statusFilter,
+    setStatusFilter,
     isCreateVisible,
     editingVehicle,
     createVehicleMutation,
@@ -66,6 +75,48 @@ export default function VehiculosAdminScreen() {
           value={search}
           onChangeText={setSearch}
         />
+
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <AuthTextInput
+            label={t('vehicles.filters.minPrice')}
+            keyboardType="decimal-pad"
+            style={{ flex: 1 }}
+            value={minPriceFilter !== undefined ? String(minPriceFilter) : ''}
+            onChangeText={(v) => setMinPriceFilter(v ? Number(v) : undefined)}
+          />
+          <AuthTextInput
+            label={t('vehicles.filters.maxPrice')}
+            keyboardType="decimal-pad"
+            style={{ flex: 1 }}
+            value={maxPriceFilter !== undefined ? String(maxPriceFilter) : ''}
+            onChangeText={(v) => setMaxPriceFilter(v ? Number(v) : undefined)}
+          />
+        </View>
+
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <AuthTextInput
+            label={t('vehicles.filters.category')}
+            style={{ flex: 1 }}
+            value={categoryFilter ?? ''}
+            onChangeText={setCategoryFilter}
+          />
+          <AuthTextInput
+            label={t('vehicles.filters.status')}
+            style={{ flex: 1 }}
+            value={statusFilter ?? ''}
+            onChangeText={setStatusFilter}
+          />
+        </View>
+
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8 }}>
+          <Button onPress={() => {
+            setMinPriceFilter(undefined);
+            setMaxPriceFilter(undefined);
+            setCategoryFilter(undefined);
+            setStatusFilter(undefined);
+          }}>{t('common.clear')}</Button>
+          <Button mode="contained" onPress={() => vehiclesQuery.refetch()}>{t('common.apply')}</Button>
+        </View>
 
         <FlatList
           data={vehicles}

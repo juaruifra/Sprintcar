@@ -48,6 +48,80 @@ export class VehiclesService {
     return vehicles.map((vehicle) => this.mapVehicleResponse(vehicle));
   }
 
+  // Nuevo: listado general con filtros opcionales (precio, categoría, status, búsqueda)
+  async list(filters?: {
+    minPrice?: number;
+    maxPrice?: number;
+    category?: string;
+    status?: VehicleStatus | string;
+    search?: string;
+    includeInactive?: boolean;
+  }) {
+    const qb = this.vehiclesRepository.createQueryBuilder('v');
+
+    // Por defecto filtramos solo activos, a menos que se solicite incluir inactivos.
+    if (!filters?.includeInactive) {
+      qb.where('v.isActive = :active', { active: true });
+    } else {
+      qb.where('1=1');
+    }
+
+    if (filters?.search) {
+      const like = `%${filters.search.toLowerCase()}%`;
+      qb.andWhere('(LOWER(v.licensePlate) LIKE :like OR LOWER(v.brand) LIKE :like OR LOWER(v.model) LIKE :like)', {
+        like,
+      });
+    }
+
+    if (filters?.category) {
+      qb.andWhere('v.category = :category', { category: filters.category });
+    }
+
+    if (filters?.status) {
+      qb.andWhere('v.status = :status', { status: filters.status });
+    }
+
+    qb.orderBy('v.brand', 'ASC').addOrderBy('v.model', 'ASC');
+
+    const vehicles = await qb.getMany();
+
+    const normalizedCategory = filters?.category?.trim().toLowerCase();
+    const normalizedStatus = filters?.status?.trim().toUpperCase();
+
+    const filteredVehicles = vehicles.filter((vehicle) => {
+      const vehiclePrice = Number(vehicle.pricePerDay);
+
+      if (typeof filters?.minPrice === 'number' && Number.isFinite(filters.minPrice)) {
+        if (vehiclePrice < filters.minPrice) {
+          return false;
+        }
+      }
+
+      if (typeof filters?.maxPrice === 'number' && Number.isFinite(filters.maxPrice)) {
+        if (vehiclePrice > filters.maxPrice) {
+          return false;
+        }
+      }
+
+      if (normalizedCategory) {
+        const vehicleCategory = (vehicle.category ?? '').trim().toLowerCase();
+        if (vehicleCategory !== normalizedCategory) {
+          return false;
+        }
+      }
+
+      if (normalizedStatus) {
+        if (vehicle.status !== normalizedStatus) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    return filteredVehicles.map((vehicle) => this.mapVehicleResponse(vehicle));
+  }
+
   async listAvailable() {
     // Este listado lo puede consumir cualquier usuario autenticado para reservar.
     const vehicles = await this.vehiclesRepository.find({

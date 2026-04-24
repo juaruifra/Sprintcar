@@ -133,6 +133,12 @@
       "available": "Available",
       "unavailable": "Unavailable"
     },
+    "filters": {
+      "minPrice": "Min price",
+      "maxPrice": "Max price",
+      "category": "Category",
+      "status": "Status"
+    },
     "form": {
       "licensePlate": "License plate",
       "brand": "Brand",
@@ -275,6 +281,8 @@
     "invalidReservationDateData": "An internal issue was detected with reservation date data"
   },
   "common": {
+    "apply": "Apply",
+    "clear": "Clear",
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",

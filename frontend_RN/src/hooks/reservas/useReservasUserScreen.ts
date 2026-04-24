@@ -64,6 +64,9 @@ export function useReservasUserScreen() {
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
   const [vehicleSearch, setVehicleSearch] = useState('');
   const [priceSort, setPriceSort] = useState<'asc' | 'desc'>('asc');
+  const [minPriceFilter, setMinPriceFilter] = useState<number | undefined>(undefined);
+  const [maxPriceFilter, setMaxPriceFilter] = useState<number | undefined>(undefined);
+  const [categoryFilter, setCategoryFilter] = useState<string | undefined>(undefined);
 
   // Regla de negocio: para reservar, el usuario debe tener DNI/NIE.
   const hasDocumentId = Boolean(user?.documentId?.trim());
@@ -102,12 +105,20 @@ export function useReservasUserScreen() {
         })
       : vehicles;
 
-    bySearch.sort((a, b) =>
+    // Aplicar filtros de precio y categoria en cliente sobre los vehículos disponibles
+    const byFilters = bySearch.filter((vehicle) => {
+      if (typeof minPriceFilter !== 'undefined' && vehicle.pricePerDay < minPriceFilter) return false;
+      if (typeof maxPriceFilter !== 'undefined' && vehicle.pricePerDay > maxPriceFilter) return false;
+      if (categoryFilter && vehicle.category?.toLowerCase() !== categoryFilter.toLowerCase()) return false;
+      return true;
+    });
+
+    byFilters.sort((a, b) =>
       priceSort === 'asc' ? a.pricePerDay - b.pricePerDay : b.pricePerDay - a.pricePerDay,
     );
 
-    return bySearch;
-  }, [availableVehiclesQuery.data, priceSort, vehicleSearch]);
+    return byFilters;
+  }, [availableVehiclesQuery.data, priceSort, vehicleSearch, minPriceFilter, maxPriceFilter, categoryFilter]);
 
   const selectedVehicle =
     filteredVehicles.find((vehicle) => vehicle.id === selectedVehicleId) ??
@@ -222,5 +233,11 @@ export function useReservasUserScreen() {
     applyQuickDateRange,
     handleCreateReservation,
     handleCancelReservation,
+    minPriceFilter,
+    setMinPriceFilter,
+    maxPriceFilter,
+    setMaxPriceFilter,
+    categoryFilter,
+    setCategoryFilter,
   };
 }
