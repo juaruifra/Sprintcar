@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCreateVehicle } from './useCreateVehicle';
 import { useAdminVehicles } from './useAdminVehicles';
 import { useUpdateVehicle } from './useUpdateVehicle';
 import { Vehicle, VehicleInput } from '../../types/vehicles/Vehicle';
 import { VehicleFormValues } from '../../components/vehiculos/form/VehicleForm.types';
+import { useSnackbar } from '../useSnackbar';
 
 const emptyFormValues: VehicleFormValues = {
   licensePlate: '',
@@ -51,6 +53,9 @@ function mapVehicleToFormValues(vehicle: Vehicle): VehicleFormValues {
 
 // Hook de pantalla para concentrar estado y acciones de gestión de vehículos admin.
 export function useVehiculosAdminScreen() {
+  const { t } = useTranslation();
+  const { showError, SnackbarUI } = useSnackbar();
+
   const [search, setSearch] = useState('');
   const [isCreateVisible, setIsCreateVisible] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
@@ -82,8 +87,12 @@ export function useVehiculosAdminScreen() {
   const closeEditModal = () => setEditingVehicle(null);
 
   const handleCreate = (values: VehicleFormValues) => {
+    // Si backend devuelve error (ej. matrícula duplicada), lo mostramos de forma visible.
     createVehicleMutation.mutate(mapFormToPayload(values), {
       onSuccess: closeCreateModal,
+      onError: (error) => {
+        showError(error instanceof Error ? error.message : t('common.unexpectedError'));
+      },
     });
   };
 
@@ -99,6 +108,9 @@ export function useVehiculosAdminScreen() {
       },
       {
         onSuccess: closeEditModal,
+        onError: (error) => {
+          showError(error instanceof Error ? error.message : t('common.unexpectedError'));
+        },
       },
     );
   };
@@ -109,6 +121,10 @@ export function useVehiculosAdminScreen() {
     updateVehicleMutation.mutate({
       vehicleId: vehicle.id,
       payload: { status: nextStatus },
+    }, {
+      onError: (error) => {
+        showError(error instanceof Error ? error.message : t('common.unexpectedError'));
+      },
     });
   };
 
@@ -121,6 +137,7 @@ export function useVehiculosAdminScreen() {
     editingVehicle,
     createVehicleMutation,
     updateVehicleMutation,
+    SnackbarUI,
     openCreateModal,
     closeCreateModal,
     openEditModal,

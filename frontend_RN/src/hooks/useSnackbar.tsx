@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Snackbar, useTheme, Text } from "react-native-paper";
+import { Portal, Snackbar, useTheme, Text } from "react-native-paper";
 import { AppTheme } from "../theme/theme.types";
 
 type SnackbarState = {
@@ -47,33 +47,35 @@ export function useSnackbar() {
     const theme = useTheme<AppTheme>();
     return (
 
-    <Snackbar
-      visible={snackbar.visible}
-      onDismiss={hideSnackbar}
-      duration={4000} // Se cierra automáticamente en 4 segundos
-      style={{
-        backgroundColor:
-          snackbar.type === "success"
-            ? theme.colors.successContainer
-            : theme.colors.errorContainer,
-      }}
-      wrapperStyle={{ bottom: 20 }}
-      action={{
-        label: "Cerrar",
-        onPress: hideSnackbar,
-      }}
-    >
-      <Text
-            style={{
+    <Portal>
+      <Snackbar
+        visible={snackbar.visible}
+        onDismiss={hideSnackbar}
+        duration={4000} // Se cierra automáticamente en 4 segundos
+        style={{
+          backgroundColor:
+            snackbar.type === "success"
+              ? theme.colors.successContainer
+              : theme.colors.errorContainer,
+        }}
+        wrapperStyle={{ bottom: 20 }}
+        action={{
+          label: "Cerrar",
+          onPress: hideSnackbar,
+        }}
+      >
+        <Text
+          style={{
             color: snackbar.type === "success"
-                ? theme.colors.onSuccessContainer
-                : theme.colors.onErrorContainer,
+              ? theme.colors.onSuccessContainer
+              : theme.colors.onErrorContainer,
             fontWeight: "500",
-            }}
+          }}
         >
-            {snackbar.message}
+          {snackbar.message}
         </Text>
-    </Snackbar>
+      </Snackbar>
+    </Portal>
   );
   };
 

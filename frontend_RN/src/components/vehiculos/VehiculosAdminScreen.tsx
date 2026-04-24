@@ -19,6 +19,7 @@ export default function VehiculosAdminScreen() {
     editingVehicle,
     createVehicleMutation,
     updateVehicleMutation,
+    SnackbarUI,
     openCreateModal,
     closeCreateModal,
     openEditModal,
@@ -103,6 +104,8 @@ export default function VehiculosAdminScreen() {
         onSubmit={handleUpdate}
         isSubmitting={updateVehicleMutation.isPending}
       />
+
+      <SnackbarUI />
     </View>
   );
 }
