@@ -3,11 +3,12 @@ import { Avatar, Button, Card, Chip, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { Reservation } from '../../../services/vehicles/reservationsService';
 
-const STATUS_I18N_KEY: Record<'CREADA' | 'CONFIRMADA' | 'RECHAZADA' | 'CANCELADA', string> = {
+const STATUS_I18N_KEY: Record<'CREADA' | 'CONFIRMADA' | 'RECHAZADA' | 'CANCELADA' | 'FINALIZADA', string> = {
   CREADA: 'created',
   CONFIRMADA: 'confirmed',
   RECHAZADA: 'rejected',
   CANCELADA: 'cancelled',
+  FINALIZADA: 'finalized',
 };
 
 type Props = {
@@ -43,7 +44,7 @@ export default function ReservationUserCard({ reservation, isCancelling, onCance
   return (
     <Card style={{ borderRadius: 16 }}>
       <Card.Title
-        title={reservation.vehicle ? `${reservation.vehicle.brand} ${reservation.vehicle.model}` : `${t('reservations.vehicleIdLabel')} #${reservation.vehicleId}`}
+        title={reservation.vehicle ? `Reserva #${reservation.id} (${reservation.vehicle.brand} ${reservation.vehicle.model})` : `${t('reservations.vehicleIdLabel')} #${reservation.vehicleId}`}
         subtitle={`${reservation.startDate} → ${reservation.endDate}`}
         left={(props) => (
           <Avatar.Icon

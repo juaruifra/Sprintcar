@@ -2,6 +2,20 @@ import { apiClient } from '../../lib/apiClient';
 
 export type IncidentStatus = 'ABIERTA' | 'RESUELTA';
 
+export type IncidentVehicleSummary = {
+  id: number;
+  licensePlate: string;
+  brand: string;
+  model: string;
+};
+
+export type IncidentReporterSummary = {
+  id: number;
+  name: string | null;
+  lastName: string | null;
+  email: string;
+};
+
 export type Incident = {
   id: number;
   reservationId: number;
@@ -12,6 +26,8 @@ export type Incident = {
   createdAt: string;
   resolvedAt: string | null;
   resolvedByUserId: number | null;
+  vehicle: IncidentVehicleSummary | null;
+  reporter: IncidentReporterSummary | null;
 };
 
 export type AdminIncidentsResponse = {

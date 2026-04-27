@@ -7,6 +7,7 @@ import {
   FAB,
   Modal,
   Portal,
+  Surface,
   Text,
   TextInput,
   useTheme,
@@ -60,7 +61,7 @@ export default function IncidentsUserScreen() {
           </Text>
         }
         ListEmptyComponent={
-          <Text style={{ textAlign: 'center', marginTop: 24 }}>
+          <Text style={{ textAlign: 'center', marginTop: 24, color: theme.colors.onSurfaceVariant }}>
             {t('incidents.emptyListUser')}
           </Text>
         }
@@ -77,59 +78,105 @@ export default function IncidentsUserScreen() {
             margin: 20,
             borderRadius: 16,
             padding: 20,
+            maxHeight: '85%',
           }}
         >
-          <Text variant="titleLarge" style={{ marginBottom: 16 }}>
-            {t('incidents.reportTitle')}
-          </Text>
-
-          <Text variant="bodyMedium" style={{ marginBottom: 8 }}>
-            {t('incidents.selectReservationLabel')}
-          </Text>
-
-          {reportableReservations.length === 0 ? (
-            <Text variant="bodySmall" style={{ marginBottom: 12, color: theme.colors.onSurfaceVariant }}>
-              {t('incidents.noReportableReservations')}
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <Text variant="titleLarge" style={{ marginBottom: 16 }}>
+              {t('incidents.reportTitle')}
             </Text>
-          ) : (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12 }}>
-              <View style={{ flexDirection: 'row', gap: 8 }}>
-                {reportableReservations.map((r) => (
-                  <Button
-                    key={r.id}
-                    mode={selectedReservationId === r.id ? 'contained' : 'outlined'}
-                    compact
-                    onPress={() => setSelectedReservationId(r.id)}
-                  >
-                    #{r.id} — {r.vehicle?.licensePlate ?? `v#${r.vehicleId}`}
-                  </Button>
-                ))}
+
+            <Text variant="labelMedium" style={{ marginBottom: 8, color: theme.colors.onSurfaceVariant }}>
+              {t('incidents.selectReservationLabel')}
+            </Text>
+
+            {reportableReservations.length === 0 ? (
+              <Surface
+                style={{
+                  padding: 12,
+                  borderRadius: 10,
+                  marginBottom: 16,
+                  backgroundColor: theme.colors.surfaceVariant,
+                }}
+                elevation={0}
+              >
+                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                  {t('incidents.noReportableReservations')}
+                </Text>
+              </Surface>
+            ) : (
+              <View style={{ gap: 8, marginBottom: 16 }}>
+                {reportableReservations.map((r) => {
+                  const isSelected = selectedReservationId === r.id;
+                  const vehicleLabel = r.vehicle
+                    ? `${r.vehicle.brand} ${r.vehicle.model} · ${r.vehicle.licensePlate}`
+                    : `#${r.vehicleId}`;
+                  return (
+                    <Surface
+                      key={r.id}
+                      style={{
+                        borderRadius: 10,
+                        borderWidth: isSelected ? 2 : 1,
+                        borderColor: isSelected
+                          ? theme.colors.primary
+                          : theme.colors.outlineVariant,
+                        backgroundColor: isSelected
+                          ? theme.colors.primaryContainer
+                          : theme.colors.surface,
+                        overflow: 'hidden',
+                      }}
+                      elevation={0}
+                    >
+                      <Button
+                        mode="text"
+                        onPress={() => setSelectedReservationId(r.id)}
+                        contentStyle={{ justifyContent: 'flex-start', paddingHorizontal: 4 }}
+                        style={{ margin: 0 }}
+                      >
+                        <View>
+                          <Text
+                            variant="bodyMedium"
+                            style={{ color: isSelected ? theme.colors.onPrimaryContainer : theme.colors.onSurface }}
+                          >
+                            {vehicleLabel}
+                          </Text>
+                          <Text
+                            variant="bodySmall"
+                            style={{ color: isSelected ? theme.colors.onPrimaryContainer : theme.colors.onSurfaceVariant }}
+                          >
+                            {t('incidents.reservationLabel')} #{r.id} · {r.startDate} → {r.endDate}
+                          </Text>
+                        </View>
+                      </Button>
+                    </Surface>
+                  );
+                })}
               </View>
-            </ScrollView>
-          )}
+            )}
 
-          <TextInput
-            label={t('incidents.descriptionLabel')}
-            value={description}
-            onChangeText={setDescription}
-            multiline
-            numberOfLines={4}
-            style={{ marginBottom: 16 }}
-          />
+            <TextInput
+              label={t('incidents.descriptionLabel')}
+              value={description}
+              onChangeText={setDescription}
+              multiline
+              numberOfLines={4}
+              style={{ marginBottom: 20 }}
+            />
 
-          <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'flex-end' }}>
-            <Button mode="outlined" onPress={closeModal} disabled={isSubmitting}>
-              {t('common.cancel')}
-            </Button>
-            <Button
-              mode="contained"
-              onPress={handleSubmit}
-              disabled={isSubmitting || reportableReservations.length === 0}
-              loading={isSubmitting}
-            >
-              {t('incidents.submitAction')}
-            </Button>
-          </View>
+            <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'flex-end' }}>
+              <Button mode="outlined" onPress={closeModal} disabled={isSubmitting}>
+                {t('common.cancel')}
+              </Button>
+              <Button
+                mode="contained"
+                onPress={handleSubmit}
+                disabled={isSubmitting || reportableReservations.length === 0 || !selectedReservationId}
+                loading={isSubmitting}
+              >
+                {t('incidents.submitAction')}
+              </Button>
+            </View>
+          </ScrollView>
         </Modal>
       </Portal>
 

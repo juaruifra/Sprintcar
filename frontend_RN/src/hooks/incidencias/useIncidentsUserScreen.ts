@@ -38,8 +38,10 @@ export function useIncidentsUserScreen() {
       { reservationId: selectedReservationId, description: description.trim() },
       {
         onSuccess: () => {
-          showSuccess(t('incidents.createSuccess'));
+          // Cerramos el modal primero para que el usuario vea la lista actualizada.
           closeModal();
+          showSuccess(t('incidents.createSuccess'));
+          // La invalidación ya ocurrió en useIncidentActions.onSuccess antes de llegar aquí.
         },
         onError: (error) =>
           showError(error instanceof Error ? error.message : t('common.unexpectedError')),
