@@ -5,6 +5,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth';
+import { IncidentsModule } from './incidents/incidents.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { UsersModule } from './users';
 import { VehiclesModule } from './vehicles';
@@ -27,6 +28,7 @@ import { VehiclesModule } from './vehicles';
     AuthModule,
     VehiclesModule,
     ReservationsModule,
+    IncidentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

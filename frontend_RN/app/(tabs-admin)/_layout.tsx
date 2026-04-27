@@ -107,6 +107,16 @@ export default function AppLayout() {
       />
 
       <Tabs.Screen
+        name="incidencias"
+        options={{
+          title: t("tabs.incidents"),
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="alert-circle-outline" color={color} size={size} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="inventario"
         options={{
           //title: "Inventario",

@@ -5,7 +5,8 @@
     "clients": "Clientes",
     "inventory": "Inventario",
     "vehicles": "Vehículos",
-    "reservations": "Reservas"
+    "reservations": "Reservas",
+    "incidents": "Incidencias"
   },
   "preferences": {
     "title": "Preferencias",
@@ -207,6 +208,35 @@
       "finalized": "Finalizada"
     }
   },
+  "incidents": {
+    "adminTitle": "Gestión de incidencias",
+    "adminSubtitle": "Todas las incidencias del sistema",
+    "myTitle": "Mis incidencias",
+    "reportTitle": "Reportar incidencia",
+    "reportAction": "Reportar",
+    "submitAction": "Enviar",
+    "resolveAction": "Resolver incidencia",
+    "filterAll": "Todas",
+    "searchPlaceholder": "Buscar por descripción...",
+    "emptyList": "No hay incidencias registradas",
+    "emptyListUser": "No tienes incidencias registradas",
+    "idLabel": "Incidencia",
+    "reservationLabel": "Reserva",
+    "vehicleLabel": "Vehículo",
+    "reportedAtLabel": "Reportada",
+    "resolvedAtLabel": "Resuelta",
+    "descriptionLabel": "Descripción",
+    "selectReservationLabel": "Selecciona la reserva afectada",
+    "noReportableReservations": "No tienes reservas confirmadas o finalizadas sobre las que reportar",
+    "createSuccess": "Incidencia reportada correctamente",
+    "resolveSuccess": "Incidencia resuelta — vehículo restaurado a disponible",
+    "validationSelectReservation": "Debes seleccionar una reserva",
+    "validationDescriptionMin": "La descripción debe tener al menos 10 caracteres",
+    "status": {
+      "open": "Abierta",
+      "resolved": "Resuelta"
+    }
+  },
   "login": {
     "welcome": "Bienvenido",
     "subtitle": "Introduce tus credenciales para continuar",
@@ -284,7 +314,10 @@
     "reservationAlreadyCancelled": "La reserva ya está cancelada",
     "adminOnlyAction": "Esta acción solo está permitida para administradores",
     "documentIdRequiredForReservation": "Debes completar tu DNI/NIE en el perfil antes de reservar",
-    "invalidReservationDateData": "Se detectó un problema interno con las fechas de una reserva"
+    "invalidReservationDateData": "Se detectó un problema interno con las fechas de una reserva",
+    "incidentNotFound": "La incidencia no fue encontrada",
+    "incidentAlreadyResolved": "La incidencia ya está resuelta",
+    "invalidIncidentStatusFilter": "El filtro de estado de incidencia no es válido"
   },
   "common": {
     "apply": "Aplicar",

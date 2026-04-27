@@ -28,3 +28,13 @@ export const reservationsAdminListQueryKey = (params: {
     limit: number;
     search?: string;
 }) => ["reservations", "admin", params] as const;
+
+// Incidencias
+export const incidentsMeQueryKey = ["incidents", "me"] as const;
+
+export const incidentsAdminListQueryKey = (params: {
+    status: string;
+    page: number;
+    limit: number;
+    search?: string;
+}) => ["incidents", "admin", params] as const;

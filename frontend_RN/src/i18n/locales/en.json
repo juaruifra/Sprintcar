@@ -5,7 +5,8 @@
     "clients": "Clients",
     "inventory": "Inventory",
     "vehicles": "Vehicles",
-    "reservations": "Reservations"
+    "reservations": "Reservations",
+    "incidents": "Incidents"
   },
   "preferences": {
     "title": "Preferences",
@@ -284,7 +285,39 @@
     "reservationAlreadyCancelled": "The reservation is already cancelled",
     "adminOnlyAction": "This action is only allowed for administrators",
     "documentIdRequiredForReservation": "You must complete your DNI/NIE in your profile before reserving",
-    "invalidReservationDateData": "An internal issue was detected with reservation date data"
+    "invalidReservationDateData": "An internal issue was detected with reservation date data",
+    "incidentNotFound": "The incident was not found",
+    "incidentAlreadyResolved": "The incident is already resolved",
+    "invalidIncidentStatusFilter": "The incident status filter is invalid"
+  },
+  "incidents": {
+    "adminTitle": "Incident management",
+    "adminSubtitle": "All incidents in the system",
+    "myTitle": "My incidents",
+    "reportTitle": "Report an incident",
+    "reportAction": "Report",
+    "submitAction": "Submit",
+    "resolveAction": "Resolve incident",
+    "filterAll": "All",
+    "searchPlaceholder": "Search by description...",
+    "emptyList": "No incidents found",
+    "emptyListUser": "You have no incidents registered",
+    "idLabel": "Incident",
+    "reservationLabel": "Reservation",
+    "vehicleLabel": "Vehicle",
+    "reportedAtLabel": "Reported",
+    "resolvedAtLabel": "Resolved",
+    "descriptionLabel": "Description",
+    "selectReservationLabel": "Select the affected reservation",
+    "noReportableReservations": "You have no confirmed or finalised reservations to report on",
+    "createSuccess": "Incident reported successfully",
+    "resolveSuccess": "Incident resolved — vehicle restored to available",
+    "validationSelectReservation": "You must select a reservation",
+    "validationDescriptionMin": "Description must be at least 10 characters",
+    "status": {
+      "open": "Open",
+      "resolved": "Resolved"
+    }
   },
   "common": {
     "apply": "Apply",
