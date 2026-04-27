@@ -137,7 +137,8 @@
       "minPrice": "Precio mínimo",
       "maxPrice": "Precio máximo",
       "category": "Categoría",
-      "status": "Estado"
+      "status": "Estado",
+      "allStatuses": "Todos"
     },
     "form": {
       "licensePlate": "Matrícula",

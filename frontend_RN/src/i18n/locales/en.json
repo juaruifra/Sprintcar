@@ -137,7 +137,8 @@
       "minPrice": "Min price",
       "maxPrice": "Max price",
       "category": "Category",
-      "status": "Status"
+      "status": "Status",
+      "allStatuses": "All"
     },
     "form": {
       "licensePlate": "License plate",

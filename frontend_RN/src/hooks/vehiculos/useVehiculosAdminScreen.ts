@@ -60,18 +60,21 @@ export function useVehiculosAdminScreen() {
   const [isCreateVisible, setIsCreateVisible] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
 
-  // Filtros para administración (pueden ser vinculados a un UI de filtros)
+  // Filtros en edición (inputs) para no disparar queries al escribir.
   const [minPriceFilter, setMinPriceFilter] = useState<number | undefined>(undefined);
   const [maxPriceFilter, setMaxPriceFilter] = useState<number | undefined>(undefined);
   const [categoryFilter, setCategoryFilter] = useState<string | undefined>(undefined);
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
 
-  const vehiclesQuery = useAdminVehicles({
-    minPrice: minPriceFilter,
-    maxPrice: maxPriceFilter,
-    category: categoryFilter,
-    status: statusFilter,
-  });
+  // Filtros aplicados realmente al backend (solo cambian al pulsar Aplicar/Limpiar).
+  const [appliedFilters, setAppliedFilters] = useState<{
+    minPrice?: number;
+    maxPrice?: number;
+    category?: string;
+    status?: string;
+  }>({});
+
+  const vehiclesQuery = useAdminVehicles(appliedFilters);
   const createVehicleMutation = useCreateVehicle();
   const updateVehicleMutation = useUpdateVehicle();
 
@@ -139,6 +142,23 @@ export function useVehiculosAdminScreen() {
     });
   };
 
+  const applyFilters = () => {
+    setAppliedFilters({
+      minPrice: minPriceFilter,
+      maxPrice: maxPriceFilter,
+      category: categoryFilter?.trim() || undefined,
+      status: statusFilter?.trim() || undefined,
+    });
+  };
+
+  const clearFilters = () => {
+    setMinPriceFilter(undefined);
+    setMaxPriceFilter(undefined);
+    setCategoryFilter(undefined);
+    setStatusFilter(undefined);
+    setAppliedFilters({});
+  };
+
   return {
     // filtros (exponer para UI)
     minPriceFilter,
@@ -149,6 +169,8 @@ export function useVehiculosAdminScreen() {
     setCategoryFilter,
     statusFilter,
     setStatusFilter,
+    applyFilters,
+    clearFilters,
     search,
     setSearch,
     vehicles,

@@ -1,6 +1,6 @@
-import React from 'react';
-import { FlatList, View } from 'react-native';
-import { ActivityIndicator, Button, FAB, Searchbar, Text, useTheme } from 'react-native-paper';
+import React, { useState } from 'react';
+import { FlatList, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Button, FAB, IconButton, Menu, Searchbar, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useVehiculosAdminScreen } from '../../hooks/vehiculos/useVehiculosAdminScreen';
 import AppHeader from '../layout/AppHeader';
@@ -11,6 +11,7 @@ import AuthTextInput from '../AuthTextInput';
 export default function VehiculosAdminScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
+  const [isStatusMenuVisible, setIsStatusMenuVisible] = useState(false);
   const {
     search,
     setSearch,
@@ -24,6 +25,8 @@ export default function VehiculosAdminScreen() {
     setCategoryFilter,
     statusFilter,
     setStatusFilter,
+    applyFilters,
+    clearFilters,
     isCreateVisible,
     editingVehicle,
     createVehicleMutation,
@@ -40,7 +43,7 @@ export default function VehiculosAdminScreen() {
     editingFormValues,
   } = useVehiculosAdminScreen();
 
-  if (vehiclesQuery.isLoading) {
+  if (vehiclesQuery.isLoading && !vehiclesQuery.data) {
     return (
       <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
         <AppHeader />
@@ -76,47 +79,71 @@ export default function VehiculosAdminScreen() {
           onChangeText={setSearch}
         />
 
-        <View style={{ flexDirection: 'row', gap: 8 }}>
+        {/* Fila compacta: todos los filtros y acciones en una sola línea desplazable */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, alignItems: 'center' }}>
           <AuthTextInput
             label={t('vehicles.filters.minPrice')}
             keyboardType="decimal-pad"
-            style={{ flex: 1 }}
+            style={{ width: 120, marginBottom: 0 }}
             value={minPriceFilter !== undefined ? String(minPriceFilter) : ''}
             onChangeText={(v) => setMinPriceFilter(v ? Number(v) : undefined)}
           />
+
           <AuthTextInput
             label={t('vehicles.filters.maxPrice')}
             keyboardType="decimal-pad"
-            style={{ flex: 1 }}
+            style={{ width: 120, marginBottom: 0 }}
             value={maxPriceFilter !== undefined ? String(maxPriceFilter) : ''}
             onChangeText={(v) => setMaxPriceFilter(v ? Number(v) : undefined)}
           />
-        </View>
 
-        <View style={{ flexDirection: 'row', gap: 8 }}>
           <AuthTextInput
             label={t('vehicles.filters.category')}
-            style={{ flex: 1 }}
+            style={{ width: 150, marginBottom: 0 }}
             value={categoryFilter ?? ''}
             onChangeText={setCategoryFilter}
           />
-          <AuthTextInput
-            label={t('vehicles.filters.status')}
-            style={{ flex: 1 }}
-            value={statusFilter ?? ''}
-            onChangeText={setStatusFilter}
-          />
-        </View>
 
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8 }}>
-          <Button onPress={() => {
-            setMinPriceFilter(undefined);
-            setMaxPriceFilter(undefined);
-            setCategoryFilter(undefined);
-            setStatusFilter(undefined);
-          }}>{t('common.clear')}</Button>
-          <Button mode="contained" onPress={() => vehiclesQuery.refetch()}>{t('common.apply')}</Button>
-        </View>
+          {/* Estado en menú desplegable para evitar texto libre y ahorrar espacio */}
+          <Menu
+            visible={isStatusMenuVisible}
+            onDismiss={() => setIsStatusMenuVisible(false)}
+            anchor={
+              <Button mode="outlined" compact onPress={() => setIsStatusMenuVisible(true)}>
+                {statusFilter === 'DISPONIBLE'
+                  ? t('vehicles.status.available')
+                  : statusFilter === 'NO_DISPONIBLE'
+                    ? t('vehicles.status.unavailable')
+                    : t('vehicles.filters.allStatuses')}
+              </Button>
+            }
+          >
+            <Menu.Item
+              title={t('vehicles.filters.allStatuses')}
+              onPress={() => {
+                setStatusFilter(undefined);
+                setIsStatusMenuVisible(false);
+              }}
+            />
+            <Menu.Item
+              title={t('vehicles.status.available')}
+              onPress={() => {
+                setStatusFilter('DISPONIBLE');
+                setIsStatusMenuVisible(false);
+              }}
+            />
+            <Menu.Item
+              title={t('vehicles.status.unavailable')}
+              onPress={() => {
+                setStatusFilter('NO_DISPONIBLE');
+                setIsStatusMenuVisible(false);
+              }}
+            />
+          </Menu>
+
+          <IconButton icon="filter-remove-outline" onPress={clearFilters} accessibilityLabel={t('common.clear')} />
+          <IconButton icon="filter-check-outline" onPress={applyFilters} accessibilityLabel={t('common.apply')} />
+        </ScrollView>
 
         <FlatList
           data={vehicles}
