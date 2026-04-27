@@ -185,6 +185,8 @@
     "cancelSuccess": "Reservation cancelled successfully",
     "emptyMine": "You do not have reservations yet",
     "emptyAdmin": "No reservations found",
+    "pageSummary": "Page {{page}} · {{limit}} per page",
+    "noPrimaryActions": "No primary actions",
     "reservationIdLabel": "Reservation",
     "vehicleIdLabel": "Vehicle",
     "userIdLabel": "User",
@@ -198,9 +200,11 @@
     },
     "status": {
       "created": "Created",
+      "pending": "Pending",
       "confirmed": "Confirmed",
       "rejected": "Rejected",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "finalized": "Finalized"
     }
   },
   "login": {
@@ -276,6 +280,7 @@
     "reservationNotFound": "The reservation was not found",
     "unauthorizedCancelReservation": "You do not have permission to cancel this reservation",
     "invalidReservationStatusTransition": "That status change is not allowed from the current state",
+    "invalidReservationStatusFilter": "The reservation status filter is invalid",
     "reservationAlreadyCancelled": "The reservation is already cancelled",
     "adminOnlyAction": "This action is only allowed for administrators",
     "documentIdRequiredForReservation": "You must complete your DNI/NIE in your profile before reserving",
@@ -297,6 +302,8 @@
     "email": "Email",
     "unexpectedError": "An unexpected error has occurred",
     "password": "Password",
-    "retry": "Retry"
+    "retry": "Retry",
+    "previous": "Previous",
+    "next": "Next"
   }
 }

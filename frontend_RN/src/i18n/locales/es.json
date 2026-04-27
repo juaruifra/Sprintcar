@@ -185,6 +185,8 @@
     "cancelSuccess": "Reserva cancelada correctamente",
     "emptyMine": "Aún no tienes reservas",
     "emptyAdmin": "No hay reservas registradas",
+    "pageSummary": "Página {{page}} · {{limit}} por página",
+    "noPrimaryActions": "Sin acciones principales",
     "reservationIdLabel": "Reserva",
     "vehicleIdLabel": "Vehículo",
     "userIdLabel": "Usuario",
@@ -198,9 +200,11 @@
     },
     "status": {
       "created": "Creada",
+      "pending": "Pendientes",
       "confirmed": "Confirmada",
       "rejected": "Rechazada",
-      "cancelled": "Cancelada"
+      "cancelled": "Cancelada",
+      "finalized": "Finalizada"
     }
   },
   "login": {
@@ -276,6 +280,7 @@
     "reservationNotFound": "La reserva no fue encontrada",
     "unauthorizedCancelReservation": "No tienes permiso para cancelar esta reserva",
     "invalidReservationStatusTransition": "No se puede realizar ese cambio de estado desde el estado actual",
+    "invalidReservationStatusFilter": "El filtro de estado de reserva no es válido",
     "reservationAlreadyCancelled": "La reserva ya está cancelada",
     "adminOnlyAction": "Esta acción solo está permitida para administradores",
     "documentIdRequiredForReservation": "Debes completar tu DNI/NIE en el perfil antes de reservar",
@@ -297,6 +302,8 @@
     "email": "Correo electrónico",
     "unexpectedError": "Ha ocurrido un error inesperado",
     "password": "Contraseña",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "previous": "Anterior",
+    "next": "Siguiente"
   }
 }

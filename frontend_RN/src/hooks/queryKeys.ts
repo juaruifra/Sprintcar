@@ -21,3 +21,10 @@ export const vehiclesAvailableByRangeQueryKey = (startDate: string, endDate: str
 export const reservationsMeQueryKey = ["reservations", "me"] as const;
 
 export const reservationsAdminQueryKey = ["reservations", "admin"] as const;
+
+export const reservationsAdminListQueryKey = (params: {
+    status: string;
+    page: number;
+    limit: number;
+    search?: string;
+}) => ["reservations", "admin", params] as const;

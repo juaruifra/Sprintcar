@@ -5,6 +5,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import type { AuthRequest } from '../auth/interfaces/auth-request.interface';
@@ -19,6 +20,13 @@ const DATE_DDMMYYYY_REGEX = /^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/(\d{4})$/;
 
 // Límites de negocio para reservas.
 const MAX_RESERVATION_DAYS = 60; // Máximo 60 días de reserva continua.
+
+type AdminListOptions = {
+  status?: ReservationStatus;
+  search?: string;
+  page: number;
+  limit: number;
+};
 
 @Injectable()
 export class ReservationsService {
@@ -166,6 +174,7 @@ export class ReservationsService {
     const nonBlockingStatuses = [
       ReservationStatus.CANCELLED,
       ReservationStatus.REJECTED,
+      ReservationStatus.FINALIZED,
     ];
 
     // Construimos una query que cuenta reservas activas que se solapen.
@@ -201,9 +210,10 @@ export class ReservationsService {
         ReservationStatus.REJECTED,
         ReservationStatus.CANCELLED,
       ],
-      [ReservationStatus.CONFIRMED]: [ReservationStatus.CANCELLED],
+      [ReservationStatus.CONFIRMED]: [ReservationStatus.CANCELLED, ReservationStatus.FINALIZED],
       [ReservationStatus.REJECTED]: [],
       [ReservationStatus.CANCELLED]: [],
+      [ReservationStatus.FINALIZED]: [],
     };
 
     if (!allowedTransitions[currentStatus].includes(nextStatus)) {
@@ -307,6 +317,9 @@ export class ReservationsService {
   }
 
   async listMy(request: AuthRequest) {
+    // Antes de listar, normalizamos estados vencidos para no depender del frontend.
+    await this.finalizeExpiredReservations();
+
     // Obtenemos todas las reservas del usuario autenticado, ordenadas por ID descendente.
     // El usuario solo ve sus propias reservas (filtro por userId).
     const reservations = await this.reservationsRepository.find({
@@ -336,10 +349,64 @@ export class ReservationsService {
     );
   }
 
-  async listAdmin() {
-    const reservations = await this.reservationsRepository.find({
-      order: { startDate: 'DESC', endDate: 'DESC', id: 'DESC' },
-    });
+  // Ejecuta cada hora para cerrar reservas confirmadas que ya vencieron.
+  @Cron('0 * * * *')
+  async finalizeExpiredReservations(): Promise<number> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const result = await this.reservationsRepository
+      .createQueryBuilder()
+      .update(ReservationEntity)
+      .set({
+        status: ReservationStatus.FINALIZED,
+        statusUpdatedAt: new Date(),
+        statusUpdatedByUserId: null,
+      })
+      .where('status = :status', { status: ReservationStatus.CONFIRMED })
+      .andWhere('end_date < :today', { today })
+      .execute();
+
+    return result.affected ?? 0;
+  }
+
+  async listAdmin(options: AdminListOptions) {
+    // Antes de responder, cerramos reservas vencidas por seguridad.
+    await this.finalizeExpiredReservations();
+
+    const baseQb = this.reservationsRepository
+      .createQueryBuilder('r')
+      .leftJoin(UserEntity, 'u', 'u.id = r.userId')
+      .leftJoin(VehicleEntity, 'v', 'v.id = r.vehicleId');
+
+    const normalizedSearch = options.search?.trim().toLowerCase();
+    if (normalizedSearch) {
+      const search = `%${normalizedSearch}%`;
+      baseQb.andWhere(
+        "(CAST(r.id AS CHAR) LIKE :search OR LOWER(COALESCE(u.name, '')) LIKE :search OR LOWER(COALESCE(u.lastName, '')) LIKE :search OR LOWER(COALESCE(u.email, '')) LIKE :search OR LOWER(COALESCE(v.brand, '')) LIKE :search OR LOWER(COALESCE(v.model, '')) LIKE :search OR LOWER(COALESCE(v.licensePlate, '')) LIKE :search)",
+        { search },
+      );
+    }
+
+    if (options.status) {
+      baseQb.andWhere('r.status = :status', { status: options.status });
+    }
+
+    // Pendientes: más cercanas primero. Resto: historial descendente.
+    if (options.status === ReservationStatus.CREATED) {
+      baseQb.orderBy('r.startDate', 'ASC').addOrderBy('r.id', 'ASC');
+    } else {
+      baseQb.orderBy('r.startDate', 'DESC').addOrderBy('r.id', 'DESC');
+    }
+
+    const total = await baseQb.clone().getCount();
+    const totalPages = Math.max(1, Math.ceil(total / options.limit));
+    const page = Math.min(options.page, totalPages);
+
+    const reservations = await baseQb
+      .skip((page - 1) * options.limit)
+      .take(options.limit)
+      .getMany();
 
     const vehicleIds = Array.from(new Set(reservations.map((reservation) => Number(reservation.vehicleId))));
     const vehicles = vehicleIds.length
@@ -353,13 +420,50 @@ export class ReservationsService {
       : [];
     const userMap = new Map(users.map((user) => [Number(user.id), user]));
 
-    return reservations.map((reservation) =>
-      this.mapReservationResponse(
-        reservation,
-        vehicleMap.get(Number(reservation.vehicleId)) ?? null,
-        userMap.get(Number(reservation.userId)) ?? null,
-      ),
+    // Contadores por estado para tabs, respetando búsqueda actual.
+    const statusesForCount: ReservationStatus[] = [
+      ReservationStatus.CREATED,
+      ReservationStatus.CONFIRMED,
+      ReservationStatus.REJECTED,
+      ReservationStatus.CANCELLED,
+      ReservationStatus.FINALIZED,
+    ];
+
+    const countsEntries = await Promise.all(
+      statusesForCount.map(async (status) => {
+        const count = await this.reservationsRepository
+          .createQueryBuilder('r')
+          .leftJoin(UserEntity, 'u', 'u.id = r.userId')
+          .leftJoin(VehicleEntity, 'v', 'v.id = r.vehicleId')
+          .where('r.status = :status', { status })
+          .andWhere(
+            normalizedSearch
+              ? "(CAST(r.id AS CHAR) LIKE :search OR LOWER(COALESCE(u.name, '')) LIKE :search OR LOWER(COALESCE(u.lastName, '')) LIKE :search OR LOWER(COALESCE(u.email, '')) LIKE :search OR LOWER(COALESCE(v.brand, '')) LIKE :search OR LOWER(COALESCE(v.model, '')) LIKE :search OR LOWER(COALESCE(v.licensePlate, '')) LIKE :search)"
+              : '1=1',
+            normalizedSearch ? { search: `%${normalizedSearch}%` } : {},
+          )
+          .getCount();
+
+        return [status, count] as const;
+      }),
     );
+
+    const counts = Object.fromEntries(countsEntries) as Record<ReservationStatus, number>;
+
+    return {
+      items: reservations.map((reservation) =>
+        this.mapReservationResponse(
+          reservation,
+          vehicleMap.get(Number(reservation.vehicleId)) ?? null,
+          userMap.get(Number(reservation.userId)) ?? null,
+        ),
+      ),
+      page,
+      limit: options.limit,
+      total,
+      totalPages,
+      counts,
+    };
   }
 
   async confirm(

@@ -4,4 +4,5 @@ export enum ReservationStatus {
   CONFIRMED = 'CONFIRMADA',
   REJECTED = 'RECHAZADA',
   CANCELLED = 'CANCELADA',
+  FINALIZED = 'FINALIZADA',
 }

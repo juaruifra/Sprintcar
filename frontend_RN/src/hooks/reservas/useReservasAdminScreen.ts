@@ -6,11 +6,12 @@ import { useAdminReservationActions } from './useAdminReservationActions';
 import { useSnackbar } from '../useSnackbar';
 
 export const ADMIN_STATUS_FILTERS: Array<'all' | ReservationStatus> = [
-  'all',
   'CREADA',
   'CONFIRMADA',
   'RECHAZADA',
   'CANCELADA',
+  'FINALIZADA',
+  'all',
 ];
 
 /**
@@ -21,12 +22,22 @@ export const ADMIN_STATUS_FILTERS: Array<'all' | ReservationStatus> = [
  */
 export function useReservasAdminScreen() {
   const { t } = useTranslation();
-  const reservationsQuery = useAdminReservations();
   const { confirmMutation, rejectMutation, cancelMutation } = useAdminReservationActions();
   const { showSuccess, showError, SnackbarUI } = useSnackbar();
 
-  const [statusFilter, setStatusFilter] = useState<'all' | ReservationStatus>('all');
+  // Pendientes (CREADA) por defecto para priorizar trabajo operativo.
+  const [statusFilter, setStatusFilter] = useState<'all' | ReservationStatus>('CREADA');
+  const [searchDraft, setSearchDraft] = useState('');
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+
+  const reservationsQuery = useAdminReservations({
+    status: statusFilter,
+    search,
+    page,
+    limit,
+  });
 
   const getUserDisplayName = (item: Reservation) => {
     const firstName = item.user?.name?.trim() ?? '';
@@ -40,20 +51,8 @@ export function useReservasAdminScreen() {
     return item.user?.email ?? t('reservations.unknownUser');
   };
 
-  const reservations = useMemo(() => {
-    const base = [...(reservationsQuery.data ?? [])];
-    const normalizedSearch = search.trim().toLowerCase();
-
-    return base.filter((item) => {
-      const statusMatch = statusFilter === 'all' ? true : item.status === statusFilter;
-      if (!statusMatch) return false;
-
-      if (!normalizedSearch) return true;
-
-      const text = `${item.id} ${item.user?.name ?? ''} ${item.user?.lastName ?? ''} ${item.user?.email ?? ''} ${item.startDate} ${item.endDate} ${item.vehicle?.brand ?? ''} ${item.vehicle?.model ?? ''} ${item.vehicle?.licensePlate ?? ''}`.toLowerCase();
-      return text.includes(normalizedSearch);
-    });
-  }, [reservationsQuery.data, search, statusFilter]);
+  const reservations = useMemo(() => reservationsQuery.data?.items ?? [], [reservationsQuery.data]);
+  const counts = useMemo(() => reservationsQuery.data?.counts, [reservationsQuery.data]);
 
   const handleCancelReservation = (reservationId: number) => {
     cancelMutation.mutate(reservationId, {
@@ -83,6 +82,28 @@ export function useReservasAdminScreen() {
     rejectMutation.isPending ||
     cancelMutation.isPending;
 
+  const applySearch = () => {
+    setPage(1);
+    setSearch(searchDraft);
+  };
+
+  const changeStatusFilter = (next: 'all' | ReservationStatus) => {
+    setStatusFilter(next);
+    setPage(1);
+  };
+
+  const nextPage = () => {
+    if (reservationsQuery.data && page < reservationsQuery.data.totalPages) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (page > 1) {
+      setPage((prev) => prev - 1);
+    }
+  };
+
   return {
     reservationsQuery,
     confirmMutation,
@@ -91,9 +112,15 @@ export function useReservasAdminScreen() {
     isAnyStatusActionPending,
     SnackbarUI,
     statusFilter,
-    setStatusFilter,
-    search,
-    setSearch,
+    changeStatusFilter,
+    counts,
+    page,
+    limit,
+    nextPage,
+    prevPage,
+    searchDraft,
+    setSearchDraft,
+    applySearch,
     reservations,
     getUserDisplayName,
     handleConfirmReservation,

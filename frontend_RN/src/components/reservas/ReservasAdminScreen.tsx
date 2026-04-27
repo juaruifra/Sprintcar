@@ -1,12 +1,13 @@
 import React from 'react';
-import { FlatList, View } from 'react-native';
+import { FlatList, View, ScrollView } from 'react-native';
 import {
   ActivityIndicator,
   Avatar,
   Button,
   Card,
+  Chip,
   Searchbar,
-  SegmentedButtons,
+  //ScrollView,
   Text,
   useTheme,
 } from 'react-native-paper';
@@ -18,11 +19,12 @@ import {
 } from '../../hooks/reservas/useReservasAdminScreen';
 import ReservationAdminCard from './cards/ReservationAdminCard';
 
-const STATUS_I18N_KEY: Record<'CREADA' | 'CONFIRMADA' | 'RECHAZADA' | 'CANCELADA', string> = {
-  CREADA: 'created',
+const STATUS_I18N_KEY: Record<'CREADA' | 'CONFIRMADA' | 'RECHAZADA' | 'CANCELADA' | 'FINALIZADA', string> = {
+  CREADA: 'pending',
   CONFIRMADA: 'confirmed',
   RECHAZADA: 'rejected',
   CANCELADA: 'cancelled',
+  FINALIZADA: 'finalized',
 };
 
 export default function ReservasAdminScreen() {
@@ -33,9 +35,15 @@ export default function ReservasAdminScreen() {
     isAnyStatusActionPending,
     SnackbarUI,
     statusFilter,
-    setStatusFilter,
-    search,
-    setSearch,
+    changeStatusFilter,
+    counts,
+    page,
+    nextPage,
+    prevPage,
+    limit,
+    searchDraft,
+    setSearchDraft,
+    applySearch,
     reservations,
     getUserDisplayName,
     handleConfirmReservation,
@@ -86,21 +94,46 @@ export default function ReservasAdminScreen() {
             <Card.Content style={{ gap: 10 }}>
               <Searchbar
                 placeholder={t('reservations.searchReservationPlaceholder')}
-                value={search}
-                onChangeText={setSearch}
+                value={searchDraft}
+                onChangeText={setSearchDraft}
               />
 
-              <SegmentedButtons
-                value={statusFilter}
-                onValueChange={(value) => setStatusFilter(value as typeof statusFilter)}
-                // Generamos opciones desde una lista única para no repetir estado en varias capas.
-                buttons={ADMIN_STATUS_FILTERS.map((status) => ({
-                  value: status,
-                  label: status === 'all'
+              <Button mode="outlined" onPress={applySearch}>{t('common.apply')}</Button>
+
+              {/* Tabs compactas por estado, con pendiente por defecto */}
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+                {ADMIN_STATUS_FILTERS.map((status) => {
+                  const isSelected = statusFilter === status;
+                  const label = status === 'all'
                     ? t('reservations.filterAll')
-                    : t(`reservations.status.${STATUS_I18N_KEY[status]}`),
-                }))}
-              />
+                    : t(`reservations.status.${STATUS_I18N_KEY[status]}`);
+
+                  const count = status === 'all'
+                    ? (counts ? Object.values(counts).reduce((acc, value) => acc + value, 0) : undefined)
+                    : counts?.[status];
+
+                  return (
+                    <Chip
+                      key={status}
+                      selected={isSelected}
+                      onPress={() => changeStatusFilter(status)}
+                      compact
+                    >
+                      {typeof count === 'number' ? `${label} (${count})` : label}
+                    </Chip>
+                  );
+                })}
+              </ScrollView>
+
+              <Text>{t('reservations.pageSummary', { page, limit })}</Text>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <Button mode="outlined" onPress={prevPage} disabled={page <= 1}>
+                  {t('common.previous')}
+                </Button>
+                <Button mode="contained" onPress={nextPage} disabled={Boolean(reservationsQuery.data && page >= reservationsQuery.data.totalPages)}>
+                  {t('common.next')}
+                </Button>
+              </View>
             </Card.Content>
           </Card>
         }

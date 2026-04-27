@@ -3,11 +3,12 @@ import { Avatar, Button, Card, Chip, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { Reservation } from '../../../services/vehicles/reservationsService';
 
-const STATUS_I18N_KEY: Record<'CREADA' | 'CONFIRMADA' | 'RECHAZADA' | 'CANCELADA', string> = {
-  CREADA: 'created',
+const STATUS_I18N_KEY: Record<'CREADA' | 'CONFIRMADA' | 'RECHAZADA' | 'CANCELADA' | 'FINALIZADA', string> = {
+  CREADA: 'pending',
   CONFIRMADA: 'confirmed',
   RECHAZADA: 'rejected',
   CANCELADA: 'cancelled',
+  FINALIZADA: 'finalized',
 };
 
 type Props = {
@@ -41,6 +42,7 @@ export default function ReservationAdminCard({
   const isConfirmed = reservation.status === 'CONFIRMADA';
   const isRejected = reservation.status === 'RECHAZADA';
   const isCancelled = reservation.status === 'CANCELADA';
+  const isFinalized = reservation.status === 'FINALIZADA';
 
   // Definimos icono y color para que el estado se entienda en un vistazo.
   const statusVisual = isCreated
@@ -49,7 +51,9 @@ export default function ReservationAdminCard({
       ? { icon: 'check-circle', color: theme.colors.primaryContainer }
       : isRejected
         ? { icon: 'close-circle', color: theme.colors.errorContainer }
-        : { icon: 'calendar-remove', color: theme.colors.errorContainer };
+        : isCancelled
+          ? { icon: 'calendar-remove', color: theme.colors.errorContainer }
+          : { icon: 'flag-checkered', color: theme.colors.secondaryContainer };
 
   return (
     <Card style={{ borderRadius: 16 }}>
@@ -109,14 +113,17 @@ export default function ReservationAdminCard({
           </>
         ) : null}
 
-        {/* Solo permitimos cancelar si la reserva sigue activa (creada o confirmada). */}
-        <Button
-          mode="outlined"
-          onPress={() => onCancel(reservation.id)}
-          disabled={(isRejected || isCancelled) || isActionPending}
-        >
-          {t('reservations.cancelAction')}
-        </Button>
+        {/* Solo cancelamos desde confirmada; rechazadas/canceladas/finalizadas son informativas. */}
+        {isConfirmed ? (
+          <Button
+            mode="outlined"
+            onPress={() => onCancel(reservation.id)}
+            disabled={isActionPending}
+          >
+            {t('reservations.cancelAction')}
+          </Button>
+        ) : null}
+
       </Card.Content>
     </Card>
   );

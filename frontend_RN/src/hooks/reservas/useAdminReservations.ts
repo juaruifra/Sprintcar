@@ -1,11 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
-import { reservationsAdminQueryKey } from '../queryKeys';
-import { fetchAdminReservations, Reservation } from '../../services/vehicles/reservationsService';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { reservationsAdminListQueryKey } from '../queryKeys';
+import {
+  AdminReservationsQueryParams,
+  AdminReservationsResponse,
+  fetchAdminReservations,
+} from '../../services/vehicles/reservationsService';
 
-// Query de todas las reservas para vista administrador.
-export function useAdminReservations() {
-  return useQuery<Reservation[], Error>({
-    queryKey: reservationsAdminQueryKey,
-    queryFn: fetchAdminReservations,
+// Query paginada/filtrada de reservas admin.
+export function useAdminReservations(params: Required<Pick<AdminReservationsQueryParams, 'status' | 'page' | 'limit'>> & Pick<AdminReservationsQueryParams, 'search'>) {
+  return useQuery<AdminReservationsResponse, Error>({
+    queryKey: reservationsAdminListQueryKey(params),
+    queryFn: () => fetchAdminReservations(params),
+    placeholderData: keepPreviousData,
   });
 }
