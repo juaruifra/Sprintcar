@@ -8,6 +8,7 @@ import {
   Chip,
   FAB,
   HelperText,
+  IconButton,
   Modal,
   Portal,
   Searchbar,
@@ -49,6 +50,8 @@ export default function ReservasUserScreen() {
     setMaxPriceFilter,
     categoryFilter,
     setCategoryFilter,
+    applyVehicleFilters,
+    clearVehicleFilters,
     priceSort,
     setPriceSort,
     canFetchAvailableVehicles,
@@ -149,23 +152,28 @@ export default function ReservasUserScreen() {
             <Card>
               <Card.Title title={t('reservations.dateRangeTitle')} />
               <Card.Content style={{ gap: 10 }}>
-                <TextInput
-                  mode="outlined"
-                  label={t('reservations.startDate')}
-                  value={startDate}
-                  onChangeText={setStartDate}
-                  placeholder="DD/MM/YYYY"
-                  right={<TextInput.Icon icon="calendar" />}
-                />
+                {/* Fechas en una sola línea para ahorrar espacio visual */}
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <TextInput
+                    mode="outlined"
+                    label={t('reservations.startDate')}
+                    value={startDate}
+                    onChangeText={setStartDate}
+                    placeholder="DD/MM/YYYY"
+                    right={<TextInput.Icon icon="calendar" />}
+                    style={{ flex: 1 }}
+                  />
 
-                <TextInput
-                  mode="outlined"
-                  label={t('reservations.endDate')}
-                  value={endDate}
-                  onChangeText={setEndDate}
-                  placeholder="DD/MM/YYYY"
-                  right={<TextInput.Icon icon="calendar" />}
-                />
+                  <TextInput
+                    mode="outlined"
+                    label={t('reservations.endDate')}
+                    value={endDate}
+                    onChangeText={setEndDate}
+                    placeholder="DD/MM/YYYY"
+                    right={<TextInput.Icon icon="calendar" />}
+                    style={{ flex: 1 }}
+                  />
+                </View>
 
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                   <Chip onPress={() => applyQuickDateRange(0, 1)}>{t('reservations.quick.tomorrow')}</Chip>
@@ -190,29 +198,34 @@ export default function ReservasUserScreen() {
                   onChangeText={setVehicleSearch}
                 />
 
-                <View style={{ flexDirection: 'row', gap: 8 }}>
+                {/* Barra compacta de filtros, igual que en admin */}
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, alignItems: 'center' }}>
                   <AuthTextInput
                     label={t('vehicles.filters.minPrice')}
                     keyboardType="decimal-pad"
-                    style={{ flex: 1 }}
+                    style={{ width: 120, marginBottom: 0 }}
                     value={minPriceFilter !== undefined ? String(minPriceFilter) : ''}
                     onChangeText={(v) => setMinPriceFilter(v ? Number(v) : undefined)}
                   />
+
                   <AuthTextInput
                     label={t('vehicles.filters.maxPrice')}
                     keyboardType="decimal-pad"
-                    style={{ flex: 1 }}
+                    style={{ width: 120, marginBottom: 0 }}
                     value={maxPriceFilter !== undefined ? String(maxPriceFilter) : ''}
                     onChangeText={(v) => setMaxPriceFilter(v ? Number(v) : undefined)}
                   />
-                </View>
 
-                <AuthTextInput
-                  label={t('vehicles.filters.category')}
-                  style={{ marginTop: 8 }}
-                  value={categoryFilter ?? ''}
-                  onChangeText={setCategoryFilter}
-                />
+                  <AuthTextInput
+                    label={t('vehicles.filters.category')}
+                    style={{ width: 150, marginBottom: 0 }}
+                    value={categoryFilter ?? ''}
+                    onChangeText={setCategoryFilter}
+                  />
+
+                  <IconButton icon="filter-remove-outline" onPress={clearVehicleFilters} accessibilityLabel={t('common.clear')} />
+                  <IconButton icon="filter-check-outline" onPress={applyVehicleFilters} accessibilityLabel={t('common.apply')} />
+                </ScrollView>
 
                 <SegmentedButtons
                   value={priceSort}

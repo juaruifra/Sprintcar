@@ -64,9 +64,17 @@ export function useReservasUserScreen() {
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
   const [vehicleSearch, setVehicleSearch] = useState('');
   const [priceSort, setPriceSort] = useState<'asc' | 'desc'>('asc');
+  // Filtros en edición (inputs)
   const [minPriceFilter, setMinPriceFilter] = useState<number | undefined>(undefined);
   const [maxPriceFilter, setMaxPriceFilter] = useState<number | undefined>(undefined);
   const [categoryFilter, setCategoryFilter] = useState<string | undefined>(undefined);
+
+  // Filtros aplicados (solo cambian al pulsar Aplicar/Limpiar)
+  const [appliedFilters, setAppliedFilters] = useState<{
+    minPrice?: number;
+    maxPrice?: number;
+    category?: string;
+  }>({});
 
   // Regla de negocio: para reservar, el usuario debe tener DNI/NIE.
   const hasDocumentId = Boolean(user?.documentId?.trim());
@@ -105,11 +113,11 @@ export function useReservasUserScreen() {
         })
       : vehicles;
 
-    // Aplicar filtros de precio y categoria en cliente sobre los vehículos disponibles
+    // Aplicar filtros de precio y categoría sobre la lista ya cargada.
     const byFilters = bySearch.filter((vehicle) => {
-      if (typeof minPriceFilter !== 'undefined' && vehicle.pricePerDay < minPriceFilter) return false;
-      if (typeof maxPriceFilter !== 'undefined' && vehicle.pricePerDay > maxPriceFilter) return false;
-      if (categoryFilter && vehicle.category?.toLowerCase() !== categoryFilter.toLowerCase()) return false;
+      if (typeof appliedFilters.minPrice !== 'undefined' && vehicle.pricePerDay < appliedFilters.minPrice) return false;
+      if (typeof appliedFilters.maxPrice !== 'undefined' && vehicle.pricePerDay > appliedFilters.maxPrice) return false;
+      if (appliedFilters.category && vehicle.category?.toLowerCase() !== appliedFilters.category.toLowerCase()) return false;
       return true;
     });
 
@@ -118,7 +126,22 @@ export function useReservasUserScreen() {
     );
 
     return byFilters;
-  }, [availableVehiclesQuery.data, priceSort, vehicleSearch, minPriceFilter, maxPriceFilter, categoryFilter]);
+  }, [availableVehiclesQuery.data, priceSort, vehicleSearch, appliedFilters]);
+
+  const applyVehicleFilters = () => {
+    setAppliedFilters({
+      minPrice: minPriceFilter,
+      maxPrice: maxPriceFilter,
+      category: categoryFilter?.trim() || undefined,
+    });
+  };
+
+  const clearVehicleFilters = () => {
+    setMinPriceFilter(undefined);
+    setMaxPriceFilter(undefined);
+    setCategoryFilter(undefined);
+    setAppliedFilters({});
+  };
 
   const selectedVehicle =
     filteredVehicles.find((vehicle) => vehicle.id === selectedVehicleId) ??
@@ -239,5 +262,7 @@ export function useReservasUserScreen() {
     setMaxPriceFilter,
     categoryFilter,
     setCategoryFilter,
+    applyVehicleFilters,
+    clearVehicleFilters,
   };
 }
