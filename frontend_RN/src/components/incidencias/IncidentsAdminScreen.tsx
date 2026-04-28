@@ -37,6 +37,7 @@ export default function IncidentsAdminScreen() {
     setSearchDraft,
     applySearch,
     page,
+    limit,
     nextPage,
     prevPage,
     handleResolve,
@@ -73,8 +74,6 @@ export default function IncidentsAdminScreen() {
     );
   }
 
-  const totalPages = incidentsQuery.data?.totalPages ?? 1;
-
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <AppHeader />
@@ -101,7 +100,7 @@ export default function IncidentsAdminScreen() {
                 {t('common.apply')}
               </Button>
 
-              {/* Tabs de estado con contadores */}
+              {/* Tabs de estado con contadores — ABIERTA seleccionada por defecto */}
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -134,6 +133,21 @@ export default function IncidentsAdminScreen() {
                   );
                 })}
               </ScrollView>
+
+              {/* Resumen de página + botones Anterior / Siguiente */}
+              <Text>{t('reservations.pageSummary', { page, limit })}</Text>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <Button mode="outlined" onPress={prevPage} disabled={page <= 1}>
+                  {t('common.previous')}
+                </Button>
+                <Button
+                  mode="contained"
+                  onPress={nextPage}
+                  disabled={Boolean(incidentsQuery.data && page >= incidentsQuery.data.totalPages)}
+                >
+                  {t('common.next')}
+                </Button>
+              </View>
             </Card.Content>
           </Card>
         }
@@ -149,31 +163,6 @@ export default function IncidentsAdminScreen() {
             onResolve={handleResolve}
           />
         )}
-        ListFooterComponent={
-          totalPages > 1 ? (
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginTop: 12,
-                paddingHorizontal: 4,
-              }}
-            >
-              <Button mode="outlined" onPress={prevPage} disabled={page <= 1}>
-                {t('common.previous')}
-              </Button>
-              <Text style={{ alignSelf: 'center' }}>
-                {t('reservations.pageSummary', {
-                  page,
-                  totalPages,
-                })}
-              </Text>
-              <Button mode="outlined" onPress={nextPage} disabled={page >= totalPages}>
-                {t('common.next')}
-              </Button>
-            </View>
-          ) : null
-        }
       />
 
       {SnackbarUI}

@@ -46,10 +46,22 @@ export class IncidentsController {
   }
 
   @Get('me')
-  @ApiOperation({ summary: 'Listar incidencias del usuario autenticado (abiertas primero)' })
-  @ApiResponse({ status: 200, description: 'Lista de incidencias propias', type: [IncidentResponseDto] })
-  async listMy(@Req() request: AuthRequest) {
-    return this.incidentsService.listMy(request);
+  @ApiOperation({ summary: 'Listar incidencias del usuario autenticado (abiertas primero), paginadas' })
+  @ApiQuery({ name: 'status', required: false, enum: Object.values(IncidentStatus), description: 'Filtrar por estado; omitir para ver todas' })
+  @ApiQuery({ name: 'page', required: false, description: 'Número de página (por defecto 1)', example: 1 })
+  @ApiQuery({ name: 'limit', required: false, description: 'Elementos por página, máx 50 (por defecto 5)', example: 5 })
+  @ApiResponse({ status: 200, description: 'Página de incidencias propias con metadatos de paginación' })
+  async listMy(
+    @Req() request: AuthRequest,
+    @Query('status') status?: IncidentStatus,
+    @Query('page') pageRaw?: string,
+    @Query('limit') limitRaw?: string,
+  ) {
+    const page = Math.max(1, Number(pageRaw ?? '1') || 1);
+    const limit = Math.min(50, Math.max(1, Number(limitRaw ?? '5') || 5));
+    // Solo pasamos status si es un valor válido del enum.
+    const validStatus = status && Object.values(IncidentStatus).includes(status) ? status : undefined;
+    return this.incidentsService.listMy(request, { page, limit, status: validStatus });
   }
 
   @Get('admin')

@@ -4,14 +4,50 @@ import { useMyIncidents } from './useMyIncidents';
 import { useIncidentActions } from './useIncidentActions';
 import { useMyReservations } from '../reservas/useMyReservations';
 import { useSnackbar } from '../useSnackbar';
-import { IncidentPriority } from '../../services/incidents/incidentsService';
+import { IncidentPriority, IncidentStatus } from '../../services/incidents/incidentsService';
+
+// Los mismos filtros que en admin, pero sin "todo" — el usuario ve sus propias.
+export const USER_INCIDENT_FILTERS: Array<'all' | IncidentStatus> = [
+  'ABIERTA',
+  'RESUELTA',
+  'all',
+];
 
 export function useIncidentsUserScreen() {
   const { t } = useTranslation();
-  const myIncidentsQuery = useMyIncidents();
-  const myReservationsQuery = useMyReservations();
   const { createMutation } = useIncidentActions();
+  const myReservationsQuery = useMyReservations();
   const { showSuccess, showError, SnackbarUI } = useSnackbar();
+
+  // Paginación: 5 incidencias por página.
+  const [page, setPage] = useState(1);
+  const limit = 5;
+
+  // Filtro de estado: por defecto ABIERTA, igual que en la vista admin.
+  const [statusFilter, setStatusFilter] = useState<'all' | IncidentStatus>('ABIERTA');
+
+  // Cambiar el filtro resetea la página para no quedar en una inexistente.
+  const changeStatusFilter = (next: 'all' | IncidentStatus) => {
+    setStatusFilter(next);
+    setPage(1);
+  };
+
+  // Solo pasamos status al hook cuando es un valor concreto (no "all").
+  const myIncidentsQuery = useMyIncidents({
+    page,
+    limit,
+    status: statusFilter !== 'all' ? statusFilter : undefined,
+  });
+
+  // Avanzar/retroceder página protegiendo los límites.
+  const nextPage = () => {
+    if (myIncidentsQuery.data && page < myIncidentsQuery.data.totalPages) {
+      setPage((p) => p + 1);
+    }
+  };
+  const prevPage = () => {
+    if (page > 1) setPage((p) => p - 1);
+  };
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedReservationId, setSelectedReservationId] = useState<number | null>(null);
@@ -42,8 +78,9 @@ export function useIncidentsUserScreen() {
       { reservationId: selectedReservationId, description: description.trim(), priority },
       {
         onSuccess: () => {
-          // Cerramos el modal primero para que el usuario vea la lista actualizada.
+          // Cerramos el modal y volvemos a la primera página para ver la nueva incidencia.
           closeModal();
+          setPage(1);
           showSuccess(t('incidents.createSuccess'));
         },
         onError: (error) =>
@@ -52,14 +89,20 @@ export function useIncidentsUserScreen() {
     );
   };
 
-  // Solo se puede reportar incidencia sobre reservas CONFIRMADAS o FINALIZADAS.
+  // Solo reservas CONFIRMADAS o FINALIZADAS permiten reportar incidencia.
   const reportableReservations = (myReservationsQuery.data ?? []).filter(
     (r) => r.status === 'CONFIRMADA' || r.status === 'FINALIZADA',
   );
 
   return {
     myIncidentsQuery,
-    incidents: myIncidentsQuery.data ?? [],
+    incidents: myIncidentsQuery.data?.items ?? [],
+    page,
+    limit,
+    nextPage,
+    prevPage,
+    statusFilter,
+    changeStatusFilter,
     reportableReservations,
     isModalVisible,
     openModal,

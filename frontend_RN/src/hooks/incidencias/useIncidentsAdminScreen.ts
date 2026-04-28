@@ -20,7 +20,8 @@ export function useIncidentsAdminScreen() {
   const [searchDraft, setSearchDraft] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+  // 5 por página, igual que en la vista de usuario y consistente con reservas.
+  const [limit] = useState(5);
 
   const incidentsQuery = useAdminIncidents({ status: statusFilter, search, page, limit });
 
@@ -59,6 +60,7 @@ export function useIncidentsAdminScreen() {
     search,
     applySearch,
     page,
+    limit,
     nextPage,
     prevPage,
     handleResolve,

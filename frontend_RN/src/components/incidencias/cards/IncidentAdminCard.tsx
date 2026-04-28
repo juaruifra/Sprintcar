@@ -132,7 +132,7 @@ export default function IncidentAdminCard({ incident, isResolving, onResolve }: 
 
           {/* Fila de acciones al pie de la card */}
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
-            {/* Botón para abrir el log de comentarios — siempre visible */}
+            {/* Botón de seguimiento: siempre visible, muestra el nº de comentarios si hay */}
             <Button
               mode="outlined"
               icon="comment-text-multiple-outline"
@@ -140,6 +140,7 @@ export default function IncidentAdminCard({ incident, isResolving, onResolve }: 
               style={{ flex: 1 }}
             >
               {t('incidents.comments.openButton')}
+              {incident.commentCount > 0 ? ` (${incident.commentCount})` : ''}
             </Button>
 
             {/* Botón de resolución — solo si la incidencia está abierta */}

@@ -17,6 +17,13 @@ import { IncidentCommentEntity } from './incident-comment.entity';
 import { IncidentEntity } from './incident.entity';
 import { IncidentStatus } from './incident-status.enum';
 
+// Opciones para el listado del propio usuario (paginado + filtro opcional de estado).
+type MyListOptions = {
+  page: number;
+  limit: number;
+  status?: IncidentStatus; // si no se pasa, devuelve todos los estados
+};
+
 type AdminListOptions = {
   status?: IncidentStatus;
   search?: string;
@@ -39,11 +46,12 @@ export class IncidentsService {
     private readonly commentsRepository: Repository<IncidentCommentEntity>,
   ) {}
 
-  // Construye la respuesta enriquecida con datos de vehículo y usuario reportador.
+  // Construye la respuesta enriquecida con datos de vehículo, reportador y nº de comentarios.
   private mapIncidentResponse(
     incident: IncidentEntity,
     vehicle?: VehicleEntity | null,
     reporter?: UserEntity | null,
+    commentCount = 0, // cuántos comentarios tiene el log de esta incidencia
   ) {
     return {
       id: incident.id,
@@ -52,8 +60,9 @@ export class IncidentsService {
       reportedByUserId: incident.reportedByUserId,
       description: incident.description,
       status: incident.status,
-      // La prioridad ahora viaja siempre al frontend para que pueda mostrar el badge.
       priority: incident.priority,
+      // El contador va al frontend para mostrarlo en el botón de seguimiento.
+      commentCount,
       createdAt: incident.createdAt.toISOString(),
       resolvedAt: incident.resolvedAt?.toISOString() ?? null,
       resolvedByUserId: incident.resolvedByUserId ?? null,
@@ -76,26 +85,39 @@ export class IncidentsService {
     };
   }
 
-  // Carga vehículos y usuarios relacionados a un lote de incidencias y las enriquece.
+  // Carga vehículos, usuarios y nº de comentarios para un lote de incidencias.
+  // Una sola query COUNT evita N+1 al paginar.
   private async enrichIncidents(incidents: IncidentEntity[]) {
     if (incidents.length === 0) return [];
 
+    const incidentIds = incidents.map((i) => i.id);
     const vehicleIds = Array.from(new Set(incidents.map((i) => Number(i.vehicleId))));
     const reporterIds = Array.from(new Set(incidents.map((i) => Number(i.reportedByUserId))));
 
-    const [vehicles, reporters] = await Promise.all([
+    // Traemos vehículos, usuarios y contadores de comentarios en paralelo.
+    const [vehicles, reporters, rawCounts] = await Promise.all([
       this.vehiclesRepository.find({ where: { id: In(vehicleIds) } }),
       this.usersRepository.find({ where: { id: In(reporterIds) } }),
+      this.commentsRepository
+        .createQueryBuilder('c')
+        .select('c.incident_id', 'incidentId')
+        .addSelect('COUNT(c.id)', 'count')
+        .where('c.incident_id IN (:...ids)', { ids: incidentIds })
+        .groupBy('c.incident_id')
+        .getRawMany() as Promise<{ incidentId: number; count: string }[]>,
     ]);
 
     const vehicleMap = new Map(vehicles.map((v) => [Number(v.id), v]));
     const reporterMap = new Map(reporters.map((u) => [Number(u.id), u]));
+    // Convertimos el array de contadores a un mapa id → número.
+    const countMap = new Map(rawCounts.map((r) => [Number(r.incidentId), Number(r.count)]));
 
     return incidents.map((i) =>
       this.mapIncidentResponse(
         i,
         vehicleMap.get(Number(i.vehicleId)) ?? null,
         reporterMap.get(Number(i.reportedByUserId)) ?? null,
+        countMap.get(i.id) ?? 0,
       ),
     );
   }
@@ -138,16 +160,29 @@ export class IncidentsService {
     return this.mapIncidentResponse(saved, vehicle ?? null, reporter ?? null);
   }
 
-  // Incidencias del usuario autenticado.
-  // Las abiertas aparecen primero; dentro de cada estado, las más recientes arriba.
-  async listMy(request: AuthRequest) {
-    const incidents = await this.incidentsRepository.find({
-      where: { reportedByUserId: request.user.sub },
-      // ABIERTA < RESUELTA alfabéticamente → ASC pone primero las abiertas.
+  // Incidencias del usuario autenticado, paginadas y con filtro de estado opcional.
+  // Las ABIERTAS van primero (ASC alfabético); dentro de cada estado, las más recientes arriba.
+  async listMy(request: AuthRequest, options: MyListOptions) {
+    const { page, limit, status } = options;
+
+    // Construimos el where dinámicamente: siempre filtra por usuario, opcionalmente por estado.
+    const where = status
+      ? { reportedByUserId: request.user.sub, status }
+      : { reportedByUserId: request.user.sub };
+
+    const [incidents, total] = await this.incidentsRepository.findAndCount({
+      where,
       order: { status: 'ASC', createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
-    return this.enrichIncidents(incidents);
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    const safePage = Math.min(page, totalPages);
+
+    const items = await this.enrichIncidents(incidents);
+
+    return { items, page: safePage, limit, total, totalPages };
   }
 
   // Listado admin con filtro de estado, búsqueda (descripción + vehículo + usuario) y paginación.

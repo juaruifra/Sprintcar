@@ -27,6 +27,8 @@ export type Incident = {
   description: string;
   status: IncidentStatus;
   priority: IncidentPriority;
+  // Cuántos comentarios tiene el log; el backend lo calcula en una sola query.
+  commentCount: number;
   createdAt: string;
   resolvedAt: string | null;
   resolvedByUserId: number | null;
@@ -56,6 +58,15 @@ export type AdminIncidentsResponse = {
   counts: Record<string, number>;
 };
 
+// La misma forma de respuesta pero sin contadores, para el listado del usuario.
+export type MyIncidentsResponse = {
+  items: Incident[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+};
+
 export type AdminIncidentsQueryParams = {
   status?: 'all' | IncidentStatus;
   search?: string;
@@ -79,9 +90,15 @@ export async function createIncident(payload: CreateIncidentPayload): Promise<In
   return apiClient.post<Incident>('/incidents', payload, { auth: true });
 }
 
-// Incidencias del usuario autenticado.
-export async function fetchMyIncidents(): Promise<Incident[]> {
-  return apiClient.get<Incident[]>('/incidents/me', { auth: true });
+// Incidencias del usuario autenticado, paginadas.
+export async function fetchMyIncidents(params?: { page?: number; limit?: number; status?: IncidentStatus }): Promise<MyIncidentsResponse> {
+  const query = new URLSearchParams();
+  if (params?.page) query.set('page', String(params.page));
+  if (params?.limit) query.set('limit', String(params.limit));
+  // Solo enviamos status si el usuario ha seleccionado un filtro concreto.
+  if (params?.status) query.set('status', params.status);
+  const qs = query.toString();
+  return apiClient.get<MyIncidentsResponse>(`/incidents/me${qs ? `?${qs}` : ''}`, { auth: true });
 }
 
 // Listado paginado para admin.

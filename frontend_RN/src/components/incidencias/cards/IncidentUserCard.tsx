@@ -110,7 +110,7 @@ export default function IncidentUserCard({ incident }: Props) {
             ) : null}
           </View>
 
-          {/* Botón para ver/añadir comentarios en el log de seguimiento */}
+          {/* Botón de seguimiento: muestra el nº de comentarios si hay alguno */}
           <Button
             mode="outlined"
             icon="comment-text-multiple-outline"
@@ -118,6 +118,7 @@ export default function IncidentUserCard({ incident }: Props) {
             style={{ marginTop: 12 }}
           >
             {t('incidents.comments.openButton')}
+            {incident.commentCount > 0 ? ` (${incident.commentCount})` : ''}
           </Button>
         </Card.Content>
       </Card>

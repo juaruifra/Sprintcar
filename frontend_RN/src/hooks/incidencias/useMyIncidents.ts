@@ -1,12 +1,14 @@
-import { useQuery } from '@tanstack/react-query';
-import { Incident, fetchMyIncidents } from '../../services/incidents/incidentsService';
-import { incidentsMeQueryKey } from '../queryKeys';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { IncidentStatus, MyIncidentsResponse, fetchMyIncidents } from '../../services/incidents/incidentsService';
+import { incidentsMeListQueryKey } from '../queryKeys';
 
-export function useMyIncidents() {
-  return useQuery<Incident[], Error>({
-    queryKey: incidentsMeQueryKey,
-    queryFn: fetchMyIncidents,
-    // Siempre refetch al montar para mostrar datos frescos al volver a la pestaña.
+// Acepta página, límite y filtro de estado opcional.
+export function useMyIncidents(params: { page: number; limit: number; status?: IncidentStatus }) {
+  return useQuery<MyIncidentsResponse, Error>({
+    queryKey: incidentsMeListQueryKey(params),
+    queryFn: () => fetchMyIncidents(params),
+    // Mantiene los datos anteriores visibles mientras carga la nueva página.
+    placeholderData: keepPreviousData,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     staleTime: 0,

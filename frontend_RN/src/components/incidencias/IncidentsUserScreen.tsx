@@ -3,6 +3,8 @@ import { FlatList, ScrollView, View } from 'react-native';
 import {
   ActivityIndicator,
   Button,
+  Card,
+  Chip,
   FAB,
   Modal,
   Portal,
@@ -15,8 +17,17 @@ import {
 import { useTranslation } from 'react-i18next';
 import AppHeader from '../layout/AppHeader';
 import IncidentUserCard from './cards/IncidentUserCard';
-import { useIncidentsUserScreen } from '../../hooks/incidencias/useIncidentsUserScreen';
-import { Incident, IncidentPriority } from '../../services/incidents/incidentsService';
+import {
+  USER_INCIDENT_FILTERS,
+  useIncidentsUserScreen,
+} from '../../hooks/incidencias/useIncidentsUserScreen';
+import { Incident, IncidentPriority, IncidentStatus } from '../../services/incidents/incidentsService';
+
+// Etiquetas i18n para los chips de filtro de estado del usuario.
+const STATUS_I18N_KEY: Record<IncidentStatus, string> = {
+  ABIERTA: 'open',
+  RESUELTA: 'resolved',
+};
 
 // Configuración visual de cada nivel de prioridad:
 // icono material, color de fondo cuando está seleccionado.
@@ -32,6 +43,12 @@ export default function IncidentsUserScreen() {
   const {
     myIncidentsQuery,
     incidents,
+    page,
+    limit,
+    nextPage,
+    prevPage,
+    statusFilter,
+    changeStatusFilter,
     reportableReservations,
     isModalVisible,
     openModal,
@@ -46,6 +63,9 @@ export default function IncidentsUserScreen() {
     isSubmitting,
     SnackbarUI,
   } = useIncidentsUserScreen();
+
+  // Total de páginas que devuelve el backend (o 1 si aún no hay datos).
+  const totalPages = myIncidentsQuery.data?.totalPages ?? 1;
 
   if (myIncidentsQuery.isLoading) {
     return (
@@ -67,9 +87,55 @@ export default function IncidentsUserScreen() {
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 100 }}
         ListHeaderComponent={
-          <Text variant="titleMedium" style={{ marginBottom: 8 }}>
-            {t('incidents.myTitle')}
-          </Text>
+          <Card style={{ marginBottom: 12 }}>
+            <Card.Content>
+              <Text variant="titleMedium" style={{ marginBottom: 8 }}>
+                {t('incidents.myTitle')}
+              </Text>
+
+              {/* Chips de filtro por estado — igual que en la vista admin */}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 8, marginBottom: 10 }}
+              >
+                {USER_INCIDENT_FILTERS.map((status) => {
+                  const isSelected = statusFilter === status;
+                  const label =
+                    status === 'all'
+                      ? t('incidents.filterAll')
+                      : t(`incidents.status.${STATUS_I18N_KEY[status as IncidentStatus]}`);
+                  return (
+                    <Chip
+                      key={status}
+                      selected={isSelected}
+                      onPress={() => changeStatusFilter(status)}
+                      compact
+                    >
+                      {label}
+                    </Chip>
+                  );
+                })}
+              </ScrollView>
+
+              {/* Resumen de página + botones Anterior / Siguiente */}
+              <Text style={{ marginBottom: 6 }}>
+                {t('reservations.pageSummary', { page, limit })}
+              </Text>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <Button mode="outlined" onPress={prevPage} disabled={page <= 1}>
+                  {t('common.previous')}
+                </Button>
+                <Button
+                  mode="contained"
+                  onPress={nextPage}
+                  disabled={page >= totalPages}
+                >
+                  {t('common.next')}
+                </Button>
+              </View>
+            </Card.Content>
+          </Card>
         }
         ListEmptyComponent={
           <Text style={{ textAlign: 'center', marginTop: 24, color: theme.colors.onSurfaceVariant }}>
