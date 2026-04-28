@@ -2,6 +2,9 @@ import { apiClient } from '../../lib/apiClient';
 
 export type IncidentStatus = 'ABIERTA' | 'RESUELTA';
 
+// Los tres niveles de urgencia que el usuario puede elegir al reportar.
+export type IncidentPriority = 'BAJA' | 'MEDIA' | 'ALTA';
+
 export type IncidentVehicleSummary = {
   id: number;
   licensePlate: string;
@@ -23,11 +26,25 @@ export type Incident = {
   reportedByUserId: number;
   description: string;
   status: IncidentStatus;
+  priority: IncidentPriority;
   createdAt: string;
   resolvedAt: string | null;
   resolvedByUserId: number | null;
   vehicle: IncidentVehicleSummary | null;
   reporter: IncidentReporterSummary | null;
+};
+
+// Un comentario del log de seguimiento de una incidencia.
+export type IncidentComment = {
+  id: number;
+  incidentId: number;
+  userId: number;
+  // Nombre completo del autor, ya calculado por el backend.
+  authorName: string;
+  // true si quien escribió el comentario es el administrador.
+  isAdmin: boolean;
+  text: string;
+  createdAt: string;
 };
 
 export type AdminIncidentsResponse = {
@@ -49,6 +66,12 @@ export type AdminIncidentsQueryParams = {
 export type CreateIncidentPayload = {
   reservationId: number;
   description: string;
+  priority: IncidentPriority;
+};
+
+export type AddCommentPayload = {
+  incidentId: number;
+  text: string;
 };
 
 // Reportar una incidencia (usuario o admin).
@@ -78,7 +101,21 @@ export async function fetchAdminIncidents(
   });
 }
 
-// Resolver incidencia (solo admin).
-export async function resolveIncident(incidentId: number): Promise<Incident> {
-  return apiClient.patch<Incident>(`/incidents/${incidentId}/resolve`, {}, { auth: true });
+// Resolver una incidencia (solo admin).
+export async function resolveIncident(id: number): Promise<Incident> {
+  return apiClient.patch<Incident>(`/incidents/${id}/resolve`, {}, { auth: true });
+}
+
+// Obtener el log de comentarios de una incidencia.
+export async function fetchIncidentComments(incidentId: number): Promise<IncidentComment[]> {
+  return apiClient.get<IncidentComment[]>(`/incidents/${incidentId}/comments`, { auth: true });
+}
+
+// Añadir un comentario al log de una incidencia.
+export async function addIncidentComment(payload: AddCommentPayload): Promise<IncidentComment> {
+  return apiClient.post<IncidentComment>(
+    `/incidents/${payload.incidentId}/comments`,
+    { text: payload.text },
+    { auth: true },
+  );
 }

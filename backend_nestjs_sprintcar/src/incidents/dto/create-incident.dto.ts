@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, MaxLength, MinLength } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, MaxLength, MinLength } from 'class-validator';
+import { IncidentPriority } from '../incident-priority.enum';
 
 export class CreateIncidentDto {
   @ApiProperty({
@@ -19,4 +20,12 @@ export class CreateIncidentDto {
   @MinLength(10)
   @MaxLength(1000)
   description!: string;
+
+  @ApiProperty({
+    description: 'Nivel de urgencia que el usuario asigna',
+    enum: IncidentPriority,
+    example: IncidentPriority.MEDIUM,
+  })
+  @IsEnum(IncidentPriority)
+  priority!: IncidentPriority;
 }

@@ -4,6 +4,7 @@ import { useMyIncidents } from './useMyIncidents';
 import { useIncidentActions } from './useIncidentActions';
 import { useMyReservations } from '../reservas/useMyReservations';
 import { useSnackbar } from '../useSnackbar';
+import { IncidentPriority } from '../../services/incidents/incidentsService';
 
 export function useIncidentsUserScreen() {
   const { t } = useTranslation();
@@ -15,10 +16,13 @@ export function useIncidentsUserScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedReservationId, setSelectedReservationId] = useState<number | null>(null);
   const [description, setDescription] = useState('');
+  // Por defecto sugiere prioridad media, que es la más común.
+  const [priority, setPriority] = useState<IncidentPriority>('MEDIA');
 
   const openModal = () => {
     setSelectedReservationId(null);
     setDescription('');
+    setPriority('MEDIA');
     setIsModalVisible(true);
   };
 
@@ -35,13 +39,12 @@ export function useIncidentsUserScreen() {
     }
 
     createMutation.mutate(
-      { reservationId: selectedReservationId, description: description.trim() },
+      { reservationId: selectedReservationId, description: description.trim(), priority },
       {
         onSuccess: () => {
           // Cerramos el modal primero para que el usuario vea la lista actualizada.
           closeModal();
           showSuccess(t('incidents.createSuccess'));
-          // La invalidación ya ocurrió en useIncidentActions.onSuccess antes de llegar aquí.
         },
         onError: (error) =>
           showError(error instanceof Error ? error.message : t('common.unexpectedError')),
@@ -65,6 +68,8 @@ export function useIncidentsUserScreen() {
     setSelectedReservationId,
     description,
     setDescription,
+    priority,
+    setPriority,
     handleSubmit,
     isSubmitting: createMutation.isPending,
     SnackbarUI,

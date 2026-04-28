@@ -23,6 +23,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import type { AuthRequest } from '../auth/interfaces/auth-request.interface';
+import { CreateIncidentCommentDto } from './dto/create-incident-comment.dto';
 import { CreateIncidentDto } from './dto/create-incident.dto';
 import { AdminIncidentsResponseDto, IncidentResponseDto } from './dto/incident-response.dto';
 import { IncidentStatus } from './incident-status.enum';
@@ -91,5 +92,31 @@ export class IncidentsController {
   @ApiResponse({ status: 404, description: 'Incidencia no encontrada' })
   async resolve(@Req() request: AuthRequest, @Param('id', ParseIntPipe) id: number) {
     return this.incidentsService.resolve(request, id);
+  }
+
+  // ─── Comentarios / log de seguimiento ────────────────────────────────────────
+
+  @Get(':id/comments')
+  @ApiOperation({ summary: 'Ver el log de comentarios de una incidencia' })
+  @ApiParam({ name: 'id', description: 'ID de la incidencia', example: 1 })
+  @ApiResponse({ status: 200, description: 'Lista de comentarios ordenados por fecha (más antiguo primero)' })
+  @ApiResponse({ status: 403, description: 'Solo puede acceder el reportador o un admin' })
+  @ApiResponse({ status: 404, description: 'Incidencia no encontrada' })
+  async listComments(@Req() request: AuthRequest, @Param('id', ParseIntPipe) id: number) {
+    return this.incidentsService.listComments(request, id);
+  }
+
+  @Post(':id/comments')
+  @ApiOperation({ summary: 'Añadir un comentario al log de una incidencia' })
+  @ApiParam({ name: 'id', description: 'ID de la incidencia', example: 1 })
+  @ApiResponse({ status: 201, description: 'Comentario guardado' })
+  @ApiResponse({ status: 403, description: 'Solo puede comentar el reportador o un admin' })
+  @ApiResponse({ status: 404, description: 'Incidencia no encontrada' })
+  async addComment(
+    @Req() request: AuthRequest,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: CreateIncidentCommentDto,
+  ) {
+    return this.incidentsService.addComment(request, id, dto);
   }
 }

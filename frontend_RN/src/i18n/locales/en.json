@@ -309,6 +309,7 @@
     "reportedAtLabel": "Report date",
     "resolvedAtLabel": "Resolution date",
     "descriptionLabel": "Description",
+    "priorityLabel": "Priority",
     "selectReservationLabel": "Select the affected reservation",
     "noReportableReservations": "You have no confirmed or finalised reservations to report on",
     "createSuccess": "Incident reported successfully",
@@ -318,6 +319,18 @@
     "status": {
       "open": "Open",
       "resolved": "Resolved"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "comments": {
+      "openButton": "View log",
+      "title": "Follow-up log",
+      "empty": "No comments yet. Be the first to add a note.",
+      "placeholder": "Write a note...",
+      "adminBadge": "Admin"
     }
   },
   "common": {

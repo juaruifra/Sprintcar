@@ -11,7 +11,9 @@ import { ReservationEntity } from '../reservations/reservation.entity';
 import { UserEntity } from '../users/user.entity';
 import { VehicleEntity } from '../vehicles/vehicle.entity';
 import { VehicleStatus } from '../vehicles/vehicle-status.enum';
+import { CreateIncidentCommentDto } from './dto/create-incident-comment.dto';
 import { CreateIncidentDto } from './dto/create-incident.dto';
+import { IncidentCommentEntity } from './incident-comment.entity';
 import { IncidentEntity } from './incident.entity';
 import { IncidentStatus } from './incident-status.enum';
 
@@ -33,6 +35,8 @@ export class IncidentsService {
     private readonly vehiclesRepository: Repository<VehicleEntity>,
     @InjectRepository(UserEntity)
     private readonly usersRepository: Repository<UserEntity>,
+    @InjectRepository(IncidentCommentEntity)
+    private readonly commentsRepository: Repository<IncidentCommentEntity>,
   ) {}
 
   // Construye la respuesta enriquecida con datos de vehículo y usuario reportador.
@@ -48,6 +52,8 @@ export class IncidentsService {
       reportedByUserId: incident.reportedByUserId,
       description: incident.description,
       status: incident.status,
+      // La prioridad ahora viaja siempre al frontend para que pueda mostrar el badge.
+      priority: incident.priority,
       createdAt: incident.createdAt.toISOString(),
       resolvedAt: incident.resolvedAt?.toISOString() ?? null,
       resolvedByUserId: incident.resolvedByUserId ?? null,
@@ -118,6 +124,7 @@ export class IncidentsService {
       vehicleId: reservation.vehicleId,
       reportedByUserId: userId,
       description: dto.description,
+      priority: dto.priority,
       status: IncidentStatus.OPEN,
     });
 
@@ -237,5 +244,88 @@ export class IncidentsService {
     ]);
 
     return this.mapIncidentResponse(incident, vehicle ?? null, reporter ?? null);
+  }
+
+  // Devuelve los comentarios de una incidencia ordenados del más antiguo al más nuevo,
+  // enriquecidos con el nombre del usuario que los escribió.
+  // Solo puede verlos el admin o el usuario que reportó la incidencia.
+  async listComments(request: AuthRequest, incidentId: number) {
+    const { sub: userId, roleId } = request.user;
+    const isAdmin = roleId === 1;
+
+    // Comprobamos que la incidencia existe y que el usuario tiene acceso.
+    const incident = await this.incidentsRepository.findOne({ where: { id: incidentId } });
+    if (!incident) throw new NotFoundException('errors.incidentNotFound');
+    if (!isAdmin && incident.reportedByUserId !== userId) {
+      throw new ForbiddenException('errors.forbiddenResourceAccess');
+    }
+
+    const comments = await this.commentsRepository.find({
+      where: { incidentId },
+      order: { createdAt: 'ASC' },
+    });
+
+    if (comments.length === 0) return [];
+
+    // Cargamos los datos de los autores de los comentarios en una sola consulta.
+    const userIds = Array.from(new Set(comments.map((c) => c.userId)));
+    const users = await this.usersRepository.find({ where: { id: In(userIds) } });
+    const userMap = new Map(users.map((u) => [u.id, u]));
+
+    return comments.map((c) => {
+      const author = userMap.get(c.userId);
+      const authorName = author
+        ? `${author.name ?? ''} ${author.lastName ?? ''}`.trim() || author.email
+        : `#${c.userId}`;
+      return {
+        id: c.id,
+        incidentId: c.incidentId,
+        userId: c.userId,
+        authorName,
+        // Si el autor es admin (roleId 1), lo marcamos para que el frontend
+        // pueda mostrar un estilo distinto (mensaje "oficial").
+        isAdmin: author?.roleId === 1,
+        text: c.text,
+        createdAt: c.createdAt.toISOString(),
+      };
+    });
+  }
+
+  // Añade un comentario a una incidencia.
+  // Solo puede comentar el admin o el usuario que abrió la incidencia.
+  async addComment(request: AuthRequest, incidentId: number, dto: CreateIncidentCommentDto) {
+    const { sub: userId, roleId } = request.user;
+    const isAdmin = roleId === 1;
+
+    const incident = await this.incidentsRepository.findOne({ where: { id: incidentId } });
+    if (!incident) throw new NotFoundException('errors.incidentNotFound');
+    if (!isAdmin && incident.reportedByUserId !== userId) {
+      throw new ForbiddenException('errors.forbiddenResourceAccess');
+    }
+
+    const comment = this.commentsRepository.create({
+      incidentId,
+      userId,
+      text: dto.text.trim(),
+    });
+
+    const saved = await this.commentsRepository.save(comment);
+
+    // Devolvemos el comentario con los datos del autor para que el frontend
+    // no tenga que hacer una consulta adicional.
+    const author = await this.usersRepository.findOne({ where: { id: userId } });
+    const authorName = author
+      ? `${author.name ?? ''} ${author.lastName ?? ''}`.trim() || author.email
+      : `#${userId}`;
+
+    return {
+      id: saved.id,
+      incidentId: saved.incidentId,
+      userId: saved.userId,
+      authorName,
+      isAdmin,
+      text: saved.text,
+      createdAt: saved.createdAt.toISOString(),
+    };
   }
 }

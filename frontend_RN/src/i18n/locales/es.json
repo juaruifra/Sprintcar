@@ -227,6 +227,7 @@
     "reportedAtLabel": "Fecha reporte",
     "resolvedAtLabel": "Fecha resolución",
     "descriptionLabel": "Descripción",
+    "priorityLabel": "Prioridad",
     "selectReservationLabel": "Selecciona la reserva afectada",
     "noReportableReservations": "No tienes reservas confirmadas o finalizadas sobre las que reportar",
     "createSuccess": "Incidencia reportada correctamente",
@@ -236,6 +237,18 @@
     "status": {
       "open": "Abierta",
       "resolved": "Resuelta"
+    },
+    "priority": {
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta"
+    },
+    "comments": {
+      "openButton": "Ver seguimiento",
+      "title": "Log de seguimiento",
+      "empty": "Aún no hay comentarios. Sé el primero en añadir una nota.",
+      "placeholder": "Escribe una nota...",
+      "adminBadge": "Admin"
     }
   },
   "login": {

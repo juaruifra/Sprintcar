@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { IncidentPriority } from './incident-priority.enum';
 import { IncidentStatus } from './incident-status.enum';
 
 @Entity('incidents')
@@ -23,6 +24,10 @@ export class IncidentEntity {
 
   @Column({ type: 'enum', enum: IncidentStatus, default: IncidentStatus.OPEN })
   status!: IncidentStatus;
+
+  // Nivel de urgencia que el usuario elige al reportar. Ayuda al admin a ordenar por importancia.
+  @Column({ type: 'enum', enum: IncidentPriority, default: IncidentPriority.MEDIUM })
+  priority!: IncidentPriority;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
