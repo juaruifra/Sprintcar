@@ -25,7 +25,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import type { AuthRequest } from '../auth/interfaces/auth-request.interface';
 import { CreateIncidentCommentDto } from './dto/create-incident-comment.dto';
 import { CreateIncidentDto } from './dto/create-incident.dto';
-import { AdminIncidentsResponseDto, IncidentResponseDto } from './dto/incident-response.dto';
+import { AdminIncidentsResponseDto, IncidentCommentResponseDto, IncidentResponseDto, MyIncidentsResponseDto } from './dto/incident-response.dto';
 import { IncidentStatus } from './incident-status.enum';
 import { IncidentsService } from './incidents.service';
 
@@ -50,7 +50,7 @@ export class IncidentsController {
   @ApiQuery({ name: 'status', required: false, enum: Object.values(IncidentStatus), description: 'Filtrar por estado; omitir para ver todas' })
   @ApiQuery({ name: 'page', required: false, description: 'Número de página (por defecto 1)', example: 1 })
   @ApiQuery({ name: 'limit', required: false, description: 'Elementos por página, máx 50 (por defecto 5)', example: 5 })
-  @ApiResponse({ status: 200, description: 'Página de incidencias propias con metadatos de paginación' })
+  @ApiResponse({ status: 200, description: 'Página de incidencias propias con metadatos de paginación', type: MyIncidentsResponseDto })
   async listMy(
     @Req() request: AuthRequest,
     @Query('status') status?: IncidentStatus,
@@ -111,7 +111,7 @@ export class IncidentsController {
   @Get(':id/comments')
   @ApiOperation({ summary: 'Ver el log de comentarios de una incidencia' })
   @ApiParam({ name: 'id', description: 'ID de la incidencia', example: 1 })
-  @ApiResponse({ status: 200, description: 'Lista de comentarios ordenados por fecha (más antiguo primero)' })
+  @ApiResponse({ status: 200, description: 'Lista de comentarios ordenados por fecha (más antiguo primero)', type: [IncidentCommentResponseDto] })
   @ApiResponse({ status: 403, description: 'Solo puede acceder el reportador o un admin' })
   @ApiResponse({ status: 404, description: 'Incidencia no encontrada' })
   async listComments(@Req() request: AuthRequest, @Param('id', ParseIntPipe) id: number) {
@@ -121,7 +121,7 @@ export class IncidentsController {
   @Post(':id/comments')
   @ApiOperation({ summary: 'Añadir un comentario al log de una incidencia' })
   @ApiParam({ name: 'id', description: 'ID de la incidencia', example: 1 })
-  @ApiResponse({ status: 201, description: 'Comentario guardado' })
+  @ApiResponse({ status: 201, description: 'Comentario guardado', type: IncidentCommentResponseDto })
   @ApiResponse({ status: 403, description: 'Solo puede comentar el reportador o un admin' })
   @ApiResponse({ status: 404, description: 'Incidencia no encontrada' })
   async addComment(
