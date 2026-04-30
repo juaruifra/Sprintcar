@@ -1,5 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import type { IncidentEntity } from '../incidents/incident.entity';
+import type { UserEntity } from '../users/user.entity';
+import type { VehicleEntity } from '../vehicles/vehicle.entity';
 import { ReservationStatus } from './reservation-status.enum';
 
 @Entity('reservations')
@@ -43,4 +46,22 @@ export class ReservationEntity {
   })
   @Column({ name: 'status_updated_by_user_id', type: 'int', nullable: true })
   statusUpdatedByUserId!: number | null;
+
+  // RELACIONES:
+  // Usuario propietario de la reserva.
+  @ApiPropertyOptional({ type: () => Object, description: 'Usuario que hizo la reserva' })
+  @ManyToOne('UserEntity', (u: UserEntity) => u.reservations)
+  @JoinColumn({ name: 'user_id' })
+  user!: UserEntity;
+
+  // Vehículo reservado.
+  @ApiPropertyOptional({ type: () => Object, description: 'Vehículo reservado' })
+  @ManyToOne('VehicleEntity', (v: VehicleEntity) => v.reservations)
+  @JoinColumn({ name: 'vehicle_id' })
+  vehicle!: VehicleEntity;
+
+  // Incidencias vinculadas a esta reserva.
+  @ApiPropertyOptional({ type: () => [Object], description: 'Incidencias de la reserva' })
+  @OneToMany('IncidentEntity', (i: IncidentEntity) => i.reservation)
+  incidents!: IncidentEntity[];
 }

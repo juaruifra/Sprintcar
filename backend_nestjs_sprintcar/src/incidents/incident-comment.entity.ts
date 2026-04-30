@@ -1,5 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import type { UserEntity } from '../users/user.entity';
+import type { IncidentEntity } from './incident.entity';
 
 // Tabla de comentarios / log de seguimiento de una incidencia.
 // Tanto el usuario que reportó como el admin pueden añadir notas para dejar
@@ -29,4 +31,17 @@ export class IncidentCommentEntity {
   @ApiProperty({ description: 'Fecha y hora en que se escribió', example: '2026-04-28T10:30:00.000Z' })
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
+
+  // RELACIONES:
+  // Incidencia a la que pertenece este comentario.
+  @ApiPropertyOptional({ type: () => Object, description: 'Incidencia a la que pertenece' })
+  @ManyToOne('IncidentEntity', (i: IncidentEntity) => i.comments)
+  @JoinColumn({ name: 'incident_id' })
+  incident!: IncidentEntity;
+
+  // Autor del comentario (usuario o admin).
+  @ApiPropertyOptional({ type: () => Object, description: 'Autor del comentario' })
+  @ManyToOne('UserEntity', (u: UserEntity) => u.incidentComments)
+  @JoinColumn({ name: 'user_id' })
+  author!: UserEntity;
 }

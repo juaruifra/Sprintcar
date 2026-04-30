@@ -1,5 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import type { ReservationEntity } from '../reservations/reservation.entity';
+import type { UserEntity } from '../users/user.entity';
+import type { VehicleEntity } from '../vehicles/vehicle.entity';
+import type { IncidentCommentEntity } from './incident-comment.entity';
 import { IncidentPriority } from './incident-priority.enum';
 import { IncidentStatus } from './incident-status.enum';
 
@@ -48,4 +52,28 @@ export class IncidentEntity {
   @ApiPropertyOptional({ description: 'ID del admin que resolvió la incidencia', nullable: true, example: null })
   @Column({ name: 'resolved_by_user_id', type: 'int', nullable: true })
   resolvedByUserId!: number | null;
+
+  // RELACIONES:
+  // Reserva a la que está asociada esta incidencia.
+  @ApiPropertyOptional({ type: () => Object, description: 'Reserva vinculada' })
+  @ManyToOne('ReservationEntity', (r: ReservationEntity) => r.incidents)
+  @JoinColumn({ name: 'reservation_id' })
+  reservation!: ReservationEntity;
+
+  // Vehículo afectado.
+  @ApiPropertyOptional({ type: () => Object, description: 'Vehículo afectado' })
+  @ManyToOne('VehicleEntity', (v: VehicleEntity) => v.incidents)
+  @JoinColumn({ name: 'vehicle_id' })
+  vehicle!: VehicleEntity;
+
+  // Usuario que abrió la incidencia.
+  @ApiPropertyOptional({ type: () => Object, description: 'Usuario que reportó la incidencia' })
+  @ManyToOne('UserEntity', (u: UserEntity) => u.incidents)
+  @JoinColumn({ name: 'reported_by_user_id' })
+  reporter!: UserEntity;
+
+  // Comentarios del log de seguimiento de esta incidencia.
+  @ApiPropertyOptional({ type: () => [Object], description: 'Comentarios del log de seguimiento' })
+  @OneToMany('IncidentCommentEntity', (c: IncidentCommentEntity) => c.incident)
+  comments!: IncidentCommentEntity[];
 }

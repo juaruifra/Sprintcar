@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import type { IncidentEntity } from '../incidents/incident.entity';
+import type { ReservationEntity } from '../reservations/reservation.entity';
 import { VehicleStatus } from './vehicle-status.enum';
 
 @Entity('vehicles')
@@ -51,4 +53,15 @@ export class VehicleEntity {
   @ApiProperty({ description: 'Indica si está activo', example: true })
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive!: boolean;
+
+  // RELACIONES:
+  // Reservas asociadas a este vehículo.
+  @ApiPropertyOptional({ type: () => [Object], description: 'Reservas del vehículo' })
+  @OneToMany('ReservationEntity', (r: ReservationEntity) => r.vehicle)
+  reservations!: ReservationEntity[];
+
+  // Incidencias que afectan a este vehículo.
+  @ApiPropertyOptional({ type: () => [Object], description: 'Incidencias del vehículo' })
+  @OneToMany('IncidentEntity', (i: IncidentEntity) => i.vehicle)
+  incidents!: IncidentEntity[];
 }

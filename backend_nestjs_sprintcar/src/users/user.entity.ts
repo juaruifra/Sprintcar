@@ -1,6 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import type { IncidentCommentEntity } from '../incidents/incident-comment.entity';
+import type { IncidentEntity } from '../incidents/incident.entity';
+import type { ReservationEntity } from '../reservations/reservation.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -75,4 +78,20 @@ export class UserEntity {
   @ApiProperty({ description: 'Indica si el usuario está activo', example: true })
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive!: boolean;
+
+  // RELACIONES:
+  // Reservas que ha hecho este usuario.
+  @ApiPropertyOptional({ type: () => [Object], description: 'Reservas del usuario' })
+  @OneToMany('ReservationEntity', (r: ReservationEntity) => r.user)
+  reservations!: ReservationEntity[];
+
+  // Incidencias reportadas por este usuario.
+  @ApiPropertyOptional({ type: () => [Object], description: 'Incidencias reportadas por el usuario' })
+  @OneToMany('IncidentEntity', (i: IncidentEntity) => i.reporter)
+  incidents!: IncidentEntity[];
+
+  // Comentarios que ha escrito en logs de incidencias.
+  @ApiPropertyOptional({ type: () => [Object], description: 'Comentarios en logs de incidencias' })
+  @OneToMany('IncidentCommentEntity', (c: IncidentCommentEntity) => c.author)
+  incidentComments!: IncidentCommentEntity[];
 }
